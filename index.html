@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Air Sweep</title>
+<meta name="generator" content="Claude (Anthropic), an AI model, directed by the project author">
+<meta name="ai-disclosure" content="AI-generated with human direction: application code, sound design (synthesized live by that code), data-processing scripts, interface text and logo icon were generated with Claude (Anthropic). Source data and imagery are from NASA, Natural Earth and Solar System Scope and are not AI-generated.">
+<!-- AI (SI) disclosure: the code, sound design, data-processing scripts, interface text and logo icon of this project were generated with Claude, an AI model by Anthropic, directed by the project author. -->
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a calm, clinical health page around one dark window onto the Earth. Plain words, big status,
+   one clear action per step. Health-status colours always come with a text label and a shape. */
+:root{
+  --bg:#f2f7f5; --surface:#ffffff; --ink:#0f2e29; --muted:#536e67; --rule:#d7e4df; --brand:#0b7a6b; --brand-ink:#ffffff; --tint:#e4f2ee;
+  --b0:#256d2a; --b0bg:#e2f3e3; --b1:#5d6c0c; --b1bg:#eff3cf; --b2:#a85200; --b2bg:#fde9d2; --b3:#a8231b; --b3bg:#fbdfdc; --bn:#42596a; --bnbg:#e5edf2;
+  --needle:#ffd596;
+  --ui:"Public Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --text:var(--ink); --panel:var(--surface); --mono:var(--ui); --display:var(--ui);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0a1312; --surface:#111e1c; --ink:#e5f0ed; --muted:#9bb2ab; --rule:#243a35; --brand:#43c7b1; --brand-ink:#05201c; --tint:#143029;
+  --b0:#86d98c; --b0bg:#16391b; --b1:#d5de78; --b1bg:#32370e; --b2:#ffb46b; --b2bg:#44280a; --b3:#ff9189; --b3bg:#491513; --bn:#abc2cd; --bnbg:#1a2b33;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0a1312; --surface:#111e1c; --ink:#e5f0ed; --muted:#9bb2ab; --rule:#243a35; --brand:#43c7b1; --brand-ink:#05201c; --tint:#143029;
+  --b0:#86d98c; --b0bg:#16391b; --b1:#d5de78; --b1bg:#32370e; --b2:#ffb46b; --b2bg:#44280a; --b3:#ff9189; --b3bg:#491513; --bn:#abc2cd; --bnbg:#1a2b33;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+.app{max-width:1280px;margin:0 auto;padding:24px 20px 56px;display:flex;flex-direction:column;gap:20px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--brand);outline-offset:3px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+a{color:var(--brand);text-underline-offset:2px}
+sup a{text-decoration:none;font-weight:600}
+h2{font-size:1.15rem;line-height:1.25;margin:0 0 10px;font-weight:700;text-wrap:balance}
+h3{font-size:1rem;margin:0;font-weight:700}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:18px 20px}
+.eyebrow{font-size:.78rem;font-weight:600;color:var(--muted);margin:0 0 2px}
+
+/* masthead */
+.top{display:flex;flex-wrap:wrap;gap:16px 40px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:14px;align-items:center}
+.logo{width:52px;height:52px;flex:none}
+h1{font-size:1.9rem;line-height:1.1;margin:0;font-weight:700;letter-spacing:-.01em}
+.lede{margin:2px 0 0;color:var(--muted);max-width:52ch}
+.facts2{display:flex;flex-wrap:wrap;gap:12px}
+.fact{background:var(--tint);border-radius:12px;padding:10px 14px;max-width:270px;font-size:.88rem;line-height:1.35}
+.fact b{display:block;font-size:1.3rem;line-height:1.15;color:var(--brand)}
+
+/* steps and view chooser */
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:.92rem;color:var(--muted)}
+.steps li{display:flex;gap:8px;align-items:center}
+.steps i{font-style:normal;font-weight:700;width:24px;height:24px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-size:.82rem;flex:none}
+.records{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.record{display:grid;grid-template-columns:104px 1fr;gap:14px;align-items:center;text-align:left;background:var(--surface);border:2px solid var(--rule);border-radius:14px;padding:10px 16px 10px 10px}
+.record img{width:104px;height:60px;object-fit:cover;border-radius:8px;display:block}
+.record b{display:block;font-weight:700}
+.record span{display:block;font-size:.84rem;color:var(--muted)}
+.record:hover{border-color:var(--muted)}
+.record[aria-checked="true"]{border-color:var(--brand);background:var(--tint)}
+.record[aria-checked="true"] b::after{content:"Selected";font-weight:600;font-size:.72rem;color:var(--brand-ink);background:var(--brand);border-radius:999px;padding:1px 8px;margin-left:8px;vertical-align:2px}
+
+/* main */
+.deck{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:20px;align-items:start}
+@media (max-width:980px){.deck{grid-template-columns:1fr}}
+.left{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{display:flex;flex-direction:column;gap:14px}
+/* the window onto the Earth keeps its own dark colours in both themes */
+.stage{--text:#e9edf5;--muted:#9aa5b8;color:var(--text);position:relative;border-radius:16px;overflow:hidden;background:#03050a;aspect-ratio:1/1;width:100%}
+@media (min-width:981px){.stage{aspect-ratio:auto;height:clamp(420px,58vh,720px)}}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:ew-resize}
+.fallback{position:absolute;inset:0;display:grid;place-items:center;padding:24px}
+.fallback .flat{position:relative;width:100%}
+.fallback img{width:100%;display:block;border-radius:8px}
+.fallback i{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--needle);box-shadow:0 0 12px var(--needle)}
+.readout{position:absolute;left:16px;top:14px;display:flex;flex-direction:column;gap:0;pointer-events:none}
+.readout span{font-size:.78rem;color:var(--muted)}
+.readout b{font-weight:600;font-size:1.45rem}
+.hintline{position:absolute;right:16px;top:16px;font-size:.78rem;color:var(--muted);text-align:right;pointer-events:none;margin:0}
+.status{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-size:.84rem;color:var(--muted);pointer-events:none;padding:0 16px;margin:0}
+.band{display:none}
+
+/* health status */
+.pill{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:4px 12px 4px 10px;font-weight:700;font-size:.86rem;line-height:1.3;background:var(--bnbg);color:var(--bn)}
+.pill::before{content:"";width:10px;height:10px;border-radius:50%;background:currentColor;flex:none}
+.pill.b0{background:var(--b0bg);color:var(--b0)}
+.pill.b1{background:var(--b1bg);color:var(--b1)}
+.pill.b2{background:var(--b2bg);color:var(--b2)}.pill.b2::before{border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.pill.b3{background:var(--b3bg);color:var(--b3)}.pill.b3::before{border-radius:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.pill.sm{font-size:.74rem;padding:2px 9px 2px 8px}.pill.sm::before{width:8px;height:8px}
+.health{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:center}
+.health .big{font-size:2rem;font-weight:700;line-height:1.05;grid-row:1/3;min-width:5.2em}
+.health .big small{display:block;font-size:.8rem;font-weight:500;color:var(--muted);margin-top:4px}
+.health p{margin:0;color:var(--muted);font-size:.92rem}
+@media (max-width:560px){.health{grid-template-columns:1fr}.health .big{grid-row:auto}}
+
+/* controls */
+.transport{display:flex;flex-direction:column;gap:14px}
+.row1{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center}
+.btns{display:flex;gap:10px;align-items:center}
+.play{display:inline-flex;align-items:center;gap:10px;background:var(--brand);color:var(--brand-ink);border:0;border-radius:12px;padding:13px 24px 13px 20px;font-weight:700;font-size:1.02rem;min-width:176px;justify-content:center}
+.play svg{width:15px;height:15px;fill:currentColor}
+.ghost{background:var(--surface);border:1.5px solid var(--rule);border-radius:12px;padding:11px 16px;color:var(--ink);font-weight:600}
+.ghost:hover{border-color:var(--muted)}
+.prog{display:flex;flex-direction:column;gap:6px;flex:1;min-width:190px}
+.prog .bar{height:8px;background:var(--rule);border-radius:4px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--brand);border-radius:4px}
+.prog small{font-size:.84rem;color:var(--muted)}
+.knobs{display:flex;gap:12px 28px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:12px}
+.knob{display:grid;grid-template-columns:auto 130px 50px;gap:10px;align-items:center;font-size:.9rem;color:var(--muted)}
+.knob output{font-size:.86rem;color:var(--ink);text-align:right;font-weight:600}
+input[type=range]{width:100%;accent-color:var(--brand);height:22px}
+
+/* pollutant chooser and layer cards */
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.tabs:empty{display:none}
+.tab{border:1.5px solid var(--rule);background:var(--surface);border-radius:10px;padding:9px 4px;font-weight:600;font-size:.9rem;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--ink)}
+.tab i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.tab[aria-checked="true"]{border-color:var(--brand);background:var(--tint)}
+.layers{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.layer{padding:14px 0;border-top:1px solid var(--rule)}
+.layer:first-child{border-top:0;padding-top:0}
+.layers.one .layer{border-top:0;padding:0}
+.layers.one .layer.off,.layers.one .sw,.layers.one kbd{display:none}
+.lhead{display:flex;align-items:center;gap:10px}
+.lhead .dot{width:11px;height:11px;border-radius:50%;background:var(--c);flex:none}
+.lhead strong{font-weight:700;flex:1;min-width:0}
+.layer.off .lhead strong{color:var(--muted)}
+.sw{width:42px;height:24px;border-radius:12px;border:1.5px solid var(--muted);background:var(--surface);position:relative;padding:0;flex:none}
+.sw::after{content:"";position:absolute;left:3px;top:3px;width:15px;height:15px;border-radius:50%;background:var(--muted);transition:transform .16s}
+.sw[aria-checked="true"]{border-color:var(--brand);background:var(--brand)}
+.sw[aria-checked="true"]::after{transform:translateX(18px);background:var(--brand-ink)}
+.mini{background:var(--surface);border:1.5px solid var(--rule);border-radius:999px;padding:4px 12px;font-size:.82rem;color:var(--ink);white-space:nowrap;font-weight:600}
+.mini:hover{border-color:var(--muted)}
+kbd{font-size:.72rem;border:1px solid var(--rule);border-radius:4px;padding:0 5px;color:var(--muted);font-family:inherit}
+.meter{position:relative;height:8px;background:var(--rule);border-radius:4px;margin-top:12px}
+.meter b{display:block;height:100%;width:0;background:var(--c);border-radius:4px;transition:width .14s linear}
+.meter u{position:absolute;top:-5px;width:3px;height:18px;background:var(--ink);border-radius:2px}
+.where{margin:8px 0 0;font-size:.9rem;color:var(--muted);min-height:1.4em}
+.layer.off .meter,.layer.off .where{opacity:.5}
+details.more{margin-top:8px}
+details.more summary{cursor:pointer;font-size:.88rem;font-weight:600;color:var(--brand)}
+.facts{margin:10px 0 0;display:flex;flex-direction:column;gap:10px}
+.facts div{display:grid;grid-template-columns:104px 1fr;gap:10px}
+.facts dt{font-size:.8rem;font-weight:600;color:var(--muted);padding-top:2px}
+.facts dd{margin:0;font-size:.92rem}
+.found{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;max-height:190px;overflow:auto}
+.found li{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;font-size:.9rem}
+.found i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.found span{font-size:.84rem;color:var(--muted);font-weight:600}
+.empty{color:var(--muted);font-size:.9rem;margin:0}
+details.keys{font-size:.88rem;color:var(--muted)}
+details.keys summary{cursor:pointer;font-weight:600}
+details.keys p{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:6px 16px}
+
+/* report, advice, sources */
+.report h2{font-size:1.5rem}
+.concl{background:var(--tint);border-radius:12px;padding:14px 16px;margin:0 0 14px;max-width:80ch}
+.concl b{display:block;margin-bottom:4px}
+.note{color:var(--muted);max-width:75ch;margin:0 0 16px;font-size:.92rem}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:14px}
+.rank{border:1px solid var(--rule);border-radius:14px;background:var(--surface);padding:16px 18px}
+.rank h3{display:flex;gap:8px;align-items:center}
+.rank h3 i{width:11px;height:11px;border-radius:50%;background:var(--c)}
+.rank .sub{color:var(--muted);font-size:.84rem;margin:4px 0 8px}
+.rank ol{list-style:none;margin:0;padding:0;counter-reset:r}
+.rank li{counter-increment:r;display:grid;grid-template-columns:22px 1fr auto;gap:3px 10px;align-items:center;padding:10px 0;border-top:1px solid var(--rule)}
+.rank li::before{content:counter(r);font-size:.84rem;color:var(--muted);font-weight:600}
+.rank .pl{font-weight:600}
+.rank .pl .pill{display:flex;width:max-content;margin:4px 0 2px;white-space:nowrap}
+.rank .det{grid-column:2/4;font-size:.84rem;color:var(--muted)}
+.rank .lvl{grid-column:2/4;height:5px;background:var(--rule);border-radius:3px;overflow:hidden}
+.rank .lvl b{display:block;height:100%;background:var(--c)}
+.rank .sea{font-size:.84rem;color:var(--muted);margin:8px 0 0;border-top:1px solid var(--rule);padding-top:10px}
+.rank li.unswept .det::after{content:" Not swept yet in this tour."}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.advice ul,.sources ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.advice li,.sources li{max-width:70ch;font-size:.94rem}
+.sources li{font-size:.88rem}
+details.about{color:var(--muted)}
+details.about summary{cursor:pointer;color:var(--ink);font-weight:600}
+details.about p{max-width:75ch;font-size:.92rem}
+.credit{color:var(--muted);font-size:.8rem;margin:0}
+.aiuse p{margin:0;max-width:80ch;font-size:.92rem}
+.aiuse p+p{margin-top:8px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.meter b,.sw::after{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="var(--tint)"/><circle cx="26" cy="26" r="15" fill="none" stroke="var(--brand)" stroke-width="2.5"/><path d="M5 26h9l3-7 5 14 4-10 2 3h19" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div>
+        <h1>Air Sweep</h1>
+        <p class="lede">Hear the air the world is breathing, and what it means for health.</p>
+      </div>
+    </div>
+    <div class="facts2">
+      <p class="fact"><b>99%</b>of people breathe air that exceeds WHO limits<sup><a href="#src3" aria-label="Source 3">3</a></sup></p>
+      <p class="fact"><b>4.2 million</b>early deaths in 2019 were linked to outdoor air pollution<sup><a href="#src2" aria-label="Source 2">2</a></sup></p>
+    </div>
+  </header>
+
+  <ol class="steps" aria-label="How to use this page">
+    <li><i>1</i>Choose what to listen to</li>
+    <li><i>2</i>Press Start: the Earth turns under the line and plays the air beneath it</li>
+    <li><i>3</i>Read the health report</li>
+  </ol>
+
+  <div class="records" role="radiogroup" aria-label="Choose what to listen to" id="records"></div>
+
+  <main class="deck">
+   <div class="left">
+    <section class="stage" aria-label="Globe">
+      <canvas id="gl" tabindex="0" role="slider" aria-valuemin="-180" aria-valuemax="180" aria-valuenow="0" aria-label="Longitude under the line. Drag, or press the left and right arrow keys, to turn the Earth beneath the line."></canvas>
+      <div class="fallback" id="fallback" hidden><div class="flat"><img id="flatimg" alt=""><i id="flatline"></i></div></div>
+      <div class="readout"><span>Under the line</span><b id="lonread">0°</b></div>
+      <p class="hintline">Drag to turn the Earth<br>North sounds high, south sounds low</p>
+      <p class="band" id="band"></p>
+      <p class="status" id="status">Loading NASA layers…</p>
+    </section>
+
+    <section class="card health" aria-label="Health reading under the line">
+      <div class="big"><span id="hval">–</span><small id="hname">under the line</small></div>
+      <div><span class="pill" id="hpill">Waiting for data</span></div>
+      <p id="hwhere"></p>
+    </section>
+
+    <div class="card transport">
+      <div class="row1">
+        <div class="btns">
+          <button class="play" id="play"><svg viewBox="0 0 14 14" aria-hidden="true"><path id="playicon" d="M2 1l11 6-11 6z"/></svg><span id="playtxt">Start the sweep</span></button>
+          <button class="ghost" id="restart">Restart</button>
+        </div>
+        <div class="prog">
+          <div class="bar" role="progressbar" aria-label="Tour progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progbar"><i id="progfill"></i></div>
+          <small id="progtxt">0° of 360° swept</small>
+        </div>
+        <button class="ghost" id="showreport">Open the health report</button>
+      </div>
+      <div class="knobs">
+        <label class="knob" for="rot">Time for one turn<input type="range" id="rot" min="30" max="300" step="5" value="90"><output id="rotout">90 s</output></label>
+        <label class="knob" for="vol">Volume<input type="range" id="vol" min="0" max="100" value="75"><output id="volout">75</output></label>
+      </div>
+    </div>
+   </div>
+
+    <aside class="panel">
+      <div class="card">
+        <h2 id="mixtitle">Choose a pollutant</h2>
+        <div class="tabs" id="tabs" role="radiogroup" aria-label="Pollutant"></div>
+        <ul class="layers" id="layers"></ul>
+      </div>
+      <div class="card">
+        <h2>Strongest places found so far</h2>
+        <ol class="found" id="found" aria-label="Places found so far"></ol>
+        <p class="empty" id="foundempty">Nothing yet. Start the sweep and the line will find them.</p>
+      </div>
+      <details class="keys"><summary>Keyboard shortcuts</summary><p><span><kbd>Space</kbd> start or pause</span><span><kbd>←</kbd> <kbd>→</kbd> turn the Earth</span><span><kbd>1</kbd>–<kbd>4</kbd> choose a pollutant or layer</span><span><kbd>R</kbd> health report</span></p></details>
+    </aside>
+  </main>
+
+  <section class="card report" id="report" hidden tabindex="-1" aria-labelledby="reph">
+    <p class="eyebrow" id="repeyebrow">Report</p>
+    <h2 id="reph">Health report</h2>
+    <div class="concl" id="repsum"></div>
+    <p class="note" id="repnote"></p>
+    <div class="cols" id="repcols"></div>
+  </section>
+
+  <div class="two">
+    <section class="card advice" aria-labelledby="advh">
+      <h2 id="advh">What you can do</h2>
+      <ul>
+        <li>This page shows the whole planet at one moment. It is not a forecast for where you live. For your own area, check your local air quality index.</li>
+        <li>Air quality indexes use a few colour-coded levels, each with a plain message about who is affected.<sup><a href="#src5" aria-label="Source 5">5</a></sup> When pollution rises above health-based limits, it is unhealthy first for sensitive groups, then for everyone as levels climb.</li>
+        <li>Sensitive groups include people with heart or lung disease, older adults, children and teenagers.<sup><a href="#src6" aria-label="Source 6">6</a></sup> On high-pollution days they are advised to cut back on long or hard outdoor exertion first.</li>
+        <li>Coughing or shortness of breath is a sign to take it easier.<sup><a href="#src6" aria-label="Source 6">6</a></sup> This page is not medical advice; talk to a health professional about your own situation.</li>
+      </ul>
+    </section>
+    <section class="card sources" aria-labelledby="srch">
+      <h2 id="srch">Sources</h2>
+      <ol>
+        <li id="src1">World Health Organization. <a href="https://www.ncbi.nlm.nih.gov/books/NBK574591/">WHO global air quality guidelines (2021), recommendations</a>. Guideline levels used here: PM2.5 15 µg/m³ (24 h), ozone 100 µg/m³ (8 h), nitrogen dioxide 25 µg/m³ (24 h), carbon monoxide 4 mg/m³ (24 h).</li>
+        <li id="src2">World Health Organization. <a href="https://www.who.int/news-room/fact-sheets/detail/ambient-(outdoor)-air-quality-and-health">Ambient (outdoor) air pollution fact sheet</a>, 2024.</li>
+        <li id="src3">World Health Organization, April 2022 air quality database update, as reported by <a href="https://www.cbsnews.com/amp/news/air-quality-who-report-poor-quality-air">CBS News</a>.</li>
+        <li id="src4">World Health Organization. <a href="https://www.who.int/teams/environment-climate-change-and-health/air-quality-and-health/health-impacts/types-of-pollutants">Types of pollutants</a>.</li>
+        <li id="src5">US Environmental Protection Agency. <a href="https://www.airnow.gov/aqi/aqi-basics/">Air Quality Index basics</a>.</li>
+        <li id="src6">US Environmental Protection Agency. <a href="https://www.airnow.gov/sites/default/files/2021-03/air-quality-guide_pm_2015_0.pdf">Air quality guide for particle pollution</a>.</li>
+        <li id="src7">NASA Scientific Visualization Studio and NASA GMAO: <a href="https://svs.gsfc.nasa.gov/5151/">PM2.5</a>, <a href="https://svs.gsfc.nasa.gov/5152/">ozone</a>, <a href="https://svs.gsfc.nasa.gov/5153/">carbon monoxide</a>, <a href="https://svs.gsfc.nasa.gov/5154/">nitrogen oxides</a>, <a href="https://svs.gsfc.nasa.gov/5669/">aerosols</a>. The data, and the health notes for carbon monoxide and nitrogen oxides.</li>
+        <li id="src8">UK Department for Environment, Food and Rural Affairs. <a href="https://uk-air.defra.gov.uk/reports/cat06/0502160851_Conversion_Factors_Between_ppb_and.pdf">Conversion factors between ppb and µg/m³</a>.</li>
+        <li id="src9">NHS England. <a href="https://service-manual.nhs.uk/content/standard-for-creating-health-content">Standard for creating health content</a>. Guided the plain-language layout of this page.</li>
+      </ol>
+    </section>
+  </div>
+
+  <section class="card aiuse" aria-labelledby="aih">
+    <h2 id="aih">How AI was used in this project</h2>
+    <p>This project was built with Claude, an AI model made by Anthropic, directed by the project author. AI generated the application code, the sound design (every sound is synthesized live in your browser by that code), the scripts that turn NASA's frames into data, the text on this page and the logo icon.</p>
+    <p>Not AI-generated: the air data and maps (NASA), the Earth surface image (Solar System Scope), borders and place names (Natural Earth), and the health guidance (WHO, US EPA). No AI image, video or audio generator was used, and no NASA logos or mission identifiers appear.</p>
+  </section>
+
+  <details class="about">
+    <summary>About the data and the method</summary>
+    <div id="about"></div>
+  </details>
+  <p class="credit">Data: NASA Scientific Visualization Studio and NASA GMAO. Earth surface: <a href="https://www.solarsystemscope.com/textures/">Solar System Scope</a>, CC BY 4.0. Borders and names: Natural Earth. Not medical advice.</p>
+  <div class="sr" aria-live="polite" id="live"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var META={"records":{"aerosols":{"bc":{"places":[{"peak":95,"mean":71,"name":"Republic of the Congo","lat":-3.2,"lon":16.2,"near":"Kinshasa"},{"peak":95,"mean":61,"name":"Democratic Republic of the Congo","lat":-3.2,"lon":16.8,"near":"Kinshasa"},{"peak":94,"mean":48,"name":"Angola","lat":-5.8,"lon":15.2,"near":"Kinshasa"},{"peak":88,"mean":35,"name":"Spain","lat":39.8,"lon":-4.2,"near":"Madrid"},{"peak":77,"mean":62,"name":"Gabon","lat":-3.8,"lon":10.8,"near":"Pointe-Noire"},{"peak":74,"mean":28,"name":"South Sudan","lat":4.8,"lon":30.2},{"peak":72,"mean":21,"name":"France","lat":49.2,"lon":-0.2,"near":"Rouen"},{"peak":69,"mean":10,"name":"Portugal","lat":41.2,"lon":-6.2,"near":"Madrid"}],"seas":[{"peak":78,"mean":4,"name":"South Atlantic Ocean","lat":-4.2,"lon":10.8},{"peak":37,"mean":1,"name":"North Atlantic Ocean","lat":0.8,"lon":3.8},{"peak":19,"mean":0,"name":"INDIAN OCEAN","lat":-13.2,"lon":126.2}]},"dust":{"places":[{"peak":89,"mean":72,"name":"Western Sahara","lat":20.8,"lon":-17.2,"near":"Nouakchott"},{"peak":86,"mean":71,"name":"Mauritania","lat":19.2,"lon":-16.8,"near":"Nouakchott"},{"peak":86,"mean":57,"name":"Eritrea","lat":18.2,"lon":38.8,"near":"Port Sudan"},{"peak":85,"mean":53,"name":"Mali","lat":20.2,"lon":-5.8},{"peak":85,"mean":45,"name":"Saudi Arabia","lat":20.2,"lon":39.8,"near":"Makkah"},{"peak":85,"mean":39,"name":"Morocco","lat":22.2,"lon":-16.8},{"peak":84,"mean":61,"name":"Chad","lat":13.8,"lon":16.8,"near":"N'Djamena"},{"peak":83,"mean":62,"name":"Niger","lat":13.8,"lon":13.8,"near":"Maiduguri"}],"seas":[{"peak":95,"mean":74,"name":"Red Sea","lat":19.8,"lon":38.8},{"peak":92,"mean":12,"name":"North Atlantic Ocean","lat":20.2,"lon":-17.8},{"peak":89,"mean":87,"name":"Persian Gulf","lat":28.2,"lon":50.2}]},"sulfate":{"places":[{"peak":87,"mean":74,"name":"New Caledonia","lat":-20.2,"lon":164.2},{"peak":87,"mean":44,"name":"Fiji","lat":-19.2,"lon":-179.8},{"peak":83,"mean":15,"name":"Russian Federation","lat":65.2,"lon":151.2},{"peak":81,"mean":18,"name":"Vanuatu","lat":-19.8,"lon":169.2},{"peak":78,"mean":33,"name":"Turkey","lat":37.8,"lon":31.8,"near":"Konya"},{"peak":74,"mean":33,"name":"India","lat":23.8,"lon":82.2,"near":"Varanasi"},{"peak":74,"mean":13,"name":"United States","lat":60.8,"lon":-172.8},{"peak":67,"mean":19,"name":"Indonesia","lat":-8.2,"lon":111.8,"near":"Malang"}],"seas":[{"peak":99,"mean":31,"name":"Coral Sea","lat":-16.2,"lon":159.8},{"peak":93,"mean":3,"name":"South Pacific Ocean","lat":-20.2,"lon":179.2},{"peak":88,"mean":6,"name":"INDIAN OCEAN","lat":-47.8,"lon":57.8}]},"salt":{"places":[{"peak":90,"mean":39,"name":"Federated States of Micronesia","lat":5.2,"lon":162.8},{"peak":85,"mean":50,"name":"Bahamas","lat":24.2,"lon":-74.2},{"peak":84,"mean":17,"name":"Papua New Guinea","lat":-8.2,"lon":151.2},{"peak":80,"mean":62,"name":"Mauritius","lat":-19.8,"lon":57.8,"near":"Port Louis"},{"peak":79,"mean":44,"name":"Kiribati","lat":3.2,"lon":172.8},{"peak":79,"mean":41,"name":"Solomon Islands","lat":-11.8,"lon":166.8},{"peak":78,"mean":31,"name":"Fiji","lat":-12.2,"lon":177.2},{"peak":72,"mean":9,"name":"New Zealand","lat":-8.8,"lon":-172.2}],"seas":[{"peak":99,"mean":37,"name":"INDIAN OCEAN","lat":-53.8,"lon":138.8},{"peak":96,"mean":41,"name":"South Pacific Ocean","lat":-4.8,"lon":159.8},{"peak":94,"mean":26,"name":"North Pacific Ocean","lat":4.2,"lon":162.2}]}},"airquality":{"co":{"places":[{"peak":95,"val":"454 ppb","meanv":"149 ppb","mean":149.151,"v":453.788,"name":"China","lat":27.8,"lon":116.2,"near":"Nanchang"},{"peak":81,"val":"314 ppb","meanv":"228 ppb","mean":227.932,"v":313.93,"name":"Nigeria","lat":10.2,"lon":5.8,"near":"Kaduna"},{"peak":79,"val":"294 ppb","meanv":"169 ppb","mean":168.843,"v":294.488,"name":"Pakistan","lat":32.2,"lon":71.8,"near":"Peshawar"},{"peak":76,"val":"268 ppb","meanv":"190 ppb","mean":189.753,"v":268.074,"name":"India","lat":27.8,"lon":79.8,"near":"Lucknow"},{"peak":76,"val":"265 ppb","meanv":"210 ppb","mean":210.409,"v":265.346,"name":"Benin","lat":9.8,"lon":3.8,"near":"Ogbomosho"},{"peak":76,"val":"264 ppb","meanv":"231 ppb","mean":231.437,"v":264.276,"name":"Bangladesh","lat":25.2,"lon":90.2,"near":"Dhaka"},{"peak":75,"val":"259 ppb","meanv":"143 ppb","mean":143.354,"v":258.676,"name":"Brazil","lat":-10.2,"lon":-68.2},{"peak":75,"val":"257 ppb","meanv":"152 ppb","mean":151.922,"v":256.507,"name":"Bolivia","lat":-10.8,"lon":-68.2}],"seas":[{"peak":82,"val":"324 ppb","meanv":"109 ppb","mean":108.627,"v":324.222,"name":"South China Sea","lat":21.2,"lon":112.2},{"peak":71,"val":"219 ppb","meanv":"138 ppb","mean":137.592,"v":219.274,"name":"Arabian Sea","lat":20.2,"lon":69.8},{"peak":70,"val":"209 ppb","meanv":"125 ppb","mean":124.736,"v":208.623,"name":"Bay of Bengal","lat":15.2,"lon":80.8}],"total":191,"above":0,"near":0},"pm25":{"places":[{"peak":55,"val":"21 µg/m³","meanv":"4.2 µg/m³","mean":4.16,"v":20.969,"name":"China","lat":29.8,"lon":121.8,"near":"Ningbo"},{"peak":41,"val":"13 µg/m³","meanv":"9.0 µg/m³","mean":9.038,"v":12.892,"name":"Dem. Rep. Korea","lat":39.8,"lon":126.2,"near":"Pyongyang"},{"peak":36,"val":"11 µg/m³","meanv":"5.4 µg/m³","mean":5.397,"v":11.102,"name":"Pakistan","lat":32.8,"lon":71.2,"near":"Peshawar"},{"peak":36,"val":"11 µg/m³","meanv":"5.1 µg/m³","mean":5.129,"v":10.895,"name":"India","lat":24.2,"lon":85.8,"near":"Dhanbad"},{"peak":32,"val":"9.7 µg/m³","meanv":"7.1 µg/m³","mean":7.139,"v":9.705,"name":"Republic of Korea","lat":37.2,"lon":126.2,"near":"Seoul"},{"peak":29,"val":"8.8 µg/m³","meanv":"2.3 µg/m³","mean":2.295,"v":8.759,"name":"Afghanistan","lat":33.8,"lon":70.8,"near":"Peshawar"},{"peak":28,"val":"8.4 µg/m³","meanv":"5.1 µg/m³","mean":5.07,"v":8.447,"name":"Nigeria","lat":8.2,"lon":8.2,"near":"Abuja"},{"peak":26,"val":"7.7 µg/m³","meanv":"2.0 µg/m³","mean":2.031,"v":7.696,"name":"Brazil","lat":-21.2,"lon":-48.2,"near":"Ribeirão Preto"}],"seas":[{"peak":35,"val":"11 µg/m³","meanv":"5.2 µg/m³","mean":5.185,"v":10.776,"name":"Arabian Sea","lat":18.8,"lon":71.8},{"peak":34,"val":"10 µg/m³","meanv":"2.9 µg/m³","mean":2.922,"v":10.13,"name":"Bay of Bengal","lat":14.2,"lon":81.2},{"peak":28,"val":"8.5 µg/m³","meanv":"2.0 µg/m³","mean":1.972,"v":8.512,"name":"South China Sea","lat":21.2,"lon":112.2}],"total":191,"above":1,"near":7},"no2":{"places":[{"peak":90,"val":"12 ppb","meanv":"1.3 ppb","mean":1.296,"v":11.608,"name":"China","lat":38.8,"lon":121.2,"near":"Dalian"},{"peak":88,"val":"10 ppb","meanv":"9.9 ppb","mean":9.942,"v":10.483,"name":"Belgium","lat":51.2,"lon":4.2,"near":"Brussels"},{"peak":87,"val":"10 ppb","meanv":"1.4 ppb","mean":1.416,"v":10.078,"name":"Brazil","lat":-15.8,"lon":-53.8,"near":"Cuiabá"},{"peak":87,"val":"9.7 ppb","meanv":"7.6 ppb","mean":7.599,"v":9.704,"name":"Netherlands","lat":51.8,"lon":4.8,"near":"The Hague"},{"peak":82,"val":"7.7 ppb","meanv":"0.46 ppb","mean":0.458,"v":7.745,"name":"Russian Federation","lat":56.2,"lon":37.8,"near":"Moscow"},{"peak":79,"val":"6.5 ppb","meanv":"2.8 ppb","mean":2.805,"v":6.524,"name":"France","lat":51.2,"lon":2.2,"near":"Lille"},{"peak":77,"val":"5.9 ppb","meanv":"3.7 ppb","mean":3.66,"v":5.931,"name":"Germany","lat":51.2,"lon":6.8,"near":"Frankfurt"},{"peak":77,"val":"5.7 ppb","meanv":"1.9 ppb","mean":1.858,"v":5.74,"name":"Japan","lat":36.2,"lon":139.8,"near":"Tokyo"}],"seas":[{"peak":70,"val":"4.0 ppb","meanv":"0.15 ppb","mean":0.154,"v":4.014,"name":"North Atlantic Ocean","lat":41.8,"lon":-9.2},{"peak":56,"val":"1.9 ppb","meanv":"0.37 ppb","mean":0.371,"v":1.945,"name":"Mediterranean Sea","lat":36.2,"lon":-0.2},{"peak":55,"val":"1.9 ppb","meanv":"0.43 ppb","mean":0.43,"v":1.865,"name":"Sea of Japan","lat":35.8,"lon":130.2}],"total":191,"above":0,"near":6},"o3":{"places":[{"peak":99,"val":"at least 60 ppb","meanv":"58 ppb","mean":58.057,"v":59.783,"name":"Pakistan","lat":27.2,"lon":69.8,"near":"Larkana"},{"peak":99,"val":"at least 60 ppb","meanv":"51 ppb","mean":50.584,"v":59.783,"name":"India","lat":27.2,"lon":70.2,"near":"Larkana"},{"peak":99,"val":"at least 60 ppb","meanv":"50 ppb","mean":50.221,"v":59.78,"name":"China","lat":21.8,"lon":112.8,"near":"Guangzhou"},{"peak":99,"val":"at least 60 ppb","meanv":"56 ppb","mean":55.742,"v":59.759,"name":"Afghanistan","lat":36.8,"lon":72.8,"near":"Peshawar"},{"peak":99,"val":"at least 60 ppb","meanv":"56 ppb","mean":56.371,"v":59.74,"name":"Tajikistan","lat":37.2,"lon":73.2,"near":"Kashgar"},{"peak":98,"val":"59 ppb","meanv":"47 ppb","mean":47.357,"v":59.089,"name":"Namibia","lat":-18.2,"lon":20.2},{"peak":98,"val":"59 ppb","meanv":"53 ppb","mean":53.364,"v":59.089,"name":"Botswana","lat":-18.8,"lon":20.8},{"peak":97,"val":"59 ppb","meanv":"44 ppb","mean":43.606,"v":58.936,"name":"United States","lat":36.8,"lon":-85.2,"near":"Knoxville"}],"seas":[{"peak":99,"val":"at least 60 ppb","meanv":"34 ppb","mean":33.65,"v":59.783,"name":"South China Sea","lat":21.2,"lon":113.2},{"peak":99,"val":"at least 60 ppb","meanv":"35 ppb","mean":34.79,"v":59.757,"name":"Arabian Sea","lat":22.8,"lon":68.8},{"peak":91,"val":"57 ppb","meanv":"50 ppb","mean":50.447,"v":56.547,"name":"Sea of Japan","lat":36.8,"lon":131.2}],"total":191,"above":57,"near":115}}},"countries":["","Canada","Russian Federation","United States","Antarctica","Indonesia","China","Greenland","Chile","Norway","Brazil","Australia","India","Philippines","Kazakhstan","Japan","Argentina","Mexico","United Kingdom","Greece","Myanmar","France","New Zealand","Papua New Guinea","Mongolia","Ukraine","Colombia","Vietnam","Democratic Republic of the Congo","Iran","Italy","Sweden","Peru","Thailand","Uzbekistan","Pakistan","Venezuela","Turkey","Germany","Spain","Finland","Malaysia","Mali","Iceland","Mozambique","Sudan","Saudi Arabia","Turkmenistan","Bolivia","Afghanistan","Lao PDR","Bangladesh","Algeria","Zambia","Tanzania","Croatia","Tajikistan","Morocco","South Africa","Nigeria","Cameroon","Kyrgyzstan","Guinea","Ecuador","Angola","Solomon Islands","South Sudan","Central African Republic","Republic of the Congo","Mauritania","Belarus","Poland","Ireland","Cuba","Ethiopia","Denmark","Côte d'Ivoire","Chad","Guyana","Fiji","Romania","Austria","Gabon","Bahamas","Serbia","Madagascar","Portugal","Netherlands","Republic of Korea","Paraguay","Dem. Rep. Korea","Libya","Azerbaijan","Niger","Egypt","Burkina Faso","Panama","Malawi","Senegal","Oman","Czech Republic","Namibia","Iraq","Western Sahara","Yemen","Kenya","Cambodia","Botswana","Hungary","Ghana","Kiribati","Honduras","Nepal","Estonia","Eritrea","Switzerland","Vanuatu","Tunisia","French Polynesia","Suriname","Uganda","Bulgaria","Nicaragua","United Arab Emirates","Syria","Zimbabwe","Georgia","Belgium","Lithuania","Guinea-Bissau","Falkland Islands / Malvinas","Moldova","Benin","Bosnia and Herzegovina","Slovakia","Uruguay","Somalia","Latvia","Liberia","Armenia","Costa Rica","Slovenia","Togo","New Caledonia","Sierra Leone","French Southern and Antarctic Lands","Guatemala","Albania","Haiti","Dominican Republic","Israel","Bhutan","Jordan","Sri Lanka","Montenegro","Republic of Cabo Verde","Rwanda","North Macedonia","Somaliland","Burundi","Lesotho","El Salvador","The Gambia","Kosovo","Timor-Leste","Puerto Rico","Taiwan","Kuwait","Equatorial Guinea","Belize","South Georgia and the Islands","Faeroe Islands","Lebanon","Djibouti","Cyprus","Brunei Darussalam","Åland Islands","Palestine","Federated States of Micronesia","Saint Vincent and the Grenadines","Jamaica","Marshall Islands","Northern Mariana Islands","Luxembourg","Northern Cyprus","Hong Kong","Trinidad and Tobago","Kingdom of eSwatini","Cayman Islands","Comoros","Indian Ocean Territories","Qatar","Tonga","Turks and Caicos Islands","Samoa","Norfolk Island","Saint Pierre and Miquelon","British Virgin Islands","São Tomé and Principe","Maldives","Antigua and Barbuda","Palau","Siachen Glacier","Saint Kitts and Nevis","United States Virgin Islands","Mauritius","Andorra","Saint Helena","British Indian Ocean Territory","Malta","Wallis and Futuna Islands","Isle of Man","Liechtenstein","Heard I. and McDonald Islands","Bahrain","Guam","Cook Islands","Saint-Barthélemy","Saint Lucia","Aruba","Curaçao","Dominica","Tuvalu","Pitcairn Islands","Jersey","Singapore","Grenada","Macao","Barbados","American Samoa","Bermuda","Seychelles","Niue","Nauru","Montserrat","Guernsey","San Marino","Monaco","Saint-Martin","Sint Maarten","Vatican","Anguilla","Ashmore and Cartier Islands"],"seas":["","North Atlantic Ocean","South Pacific Ocean","North Pacific Ocean","SOUTHERN OCEAN","South China Sea","South Atlantic Ocean","INDIAN OCEAN","Arctic Ocean","Caribbean Sea","Mediterranean Sea","Labrador Sea","Weddell Sea","Tasman Sea","Baffin Bay","Hudson Bay","Ross Sea","Gulf of Mexico","Philippine Sea","Gulf of Alaska","Sea of Japan","Bay of Bengal","Coral Sea","Sea of Okhotsk","Caspian Sea","Beaufort Sea","Black Sea","Arabian Sea","Persian Gulf","Red Sea"],"scales":{"co":{"anchors":[[0.0,40],[0.301,100],[0.5345,130],[0.7673,200],[1.0,500]],"mode":"lin","unit":"ppb","floor":0.2509,"floorv":90,"ceil":1.0,"ceilv":500.0,"min":40,"max":500},"pm25":{"anchors":[[0.0,0.4],[0.1904,1.6],[0.3953,6.4],[0.5995,25.6],[0.8036,102.4],[1.0,409.6]],"mode":"log","unit":"µg/m³","floor":0.2929,"floorv":3.2,"ceil":0.8001,"ceilv":100.0,"min":0.4,"max":409.6},"no2":{"anchors":[[0.0,0.001],[0.2666,0.01],[0.5347,0.1],[0.7352,1],[0.9401,10],[1.0,19.604072439672887]],"mode":"log","unit":"ppb","floor":0.5347,"floorv":0.1,"ceil":1.0,"ceilv":19.6,"min":0.001,"max":19.6},"o3":{"anchors":[[0.0,5],[0.2692,20],[0.6375,40],[1.0,60]],"mode":"lin","unit":"ppb","floor":0.2692,"floorv":20,"ceil":1.0,"ceilv":60.0,"min":5,"max":60}}};
+var $=function(id){return document.getElementById(id)};
+var RAD=Math.PI/180,TILT=14*RAD;
+var still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+var RECORDS={
+  aerosols:{id:"aerosols",title:"Particles in the air",date:"Soot, dust, sulfate and sea salt · 19 Aug 2025",start:-25,sweep:360,bands:false,cover:"assets/cover_aerosols.jpg",
+    layers:[
+      {id:"bc",name:"Soot and smoke",what:"Black carbon from wildfires and burning fuel.",snd:"Low brass that swells and growls.",col:[1,.40,.24],voice:"brass",base:38,hazard:true},
+      {id:"dust",name:"Dust",what:"Desert dust lifted and carried by wind.",snd:"Bowed strings with a sandy hiss.",col:[.80,.62,1],voice:"strings",base:50,hazard:true},
+      {id:"sulfate",name:"Sulfate",what:"Haze from burning coal and oil, and from volcanoes.",snd:"Metallic bells in quick patterns.",col:[.36,.95,.30],voice:"bell",base:62,hazard:true},
+      {id:"salt",name:"Sea salt",what:"Spray whipped up by ocean winds. Natural, so not ranked as a hazard.",snd:"A soft, breathy high tone.",col:[.42,.78,.88],voice:"air",base:74,hazard:false}]},
+  airquality:{id:"airquality",title:"Air quality and health",date:"Four pollutants with health guidelines · 30 Oct 2026",start:-25,sweep:360,bands:false,exclusive:true,first:1,cover:"assets/cover_airquality.jpg",
+    layers:[
+      {id:"co",name:"Carbon monoxide",short:"CO",src:7,what:"A gas from fires and engines. At high levels it stops the blood carrying oxygen well, causing tiredness, headaches and dizziness.",snd:"A slow, low drone that sags and dulls, like drowsiness. Outdoor levels here stay far below the guideline, so it never turns urgent.",col:[1,.40,.20],voice:"drowse",base:38,hazard:true,guide:3500,gtext:"WHO guideline: 4 mg/m³ over 24 hours, about 3,500 ppb"},
+      {id:"pm25",name:"Fine particles (PM2.5)",short:"PM2.5",src:3,what:"Tiny particles that get deep into the lungs and into the blood. Linked to heart disease, stroke and lung disease.",snd:"Low strings with breathing and a heartbeat. The breath turns laboured and the pulse races as levels pass the guideline.",col:[1,.58,.16],gam:.5,voice:"lungs",base:38,hazard:true,guide:15,gtext:"WHO guideline: 15 µg/m³ over 24 hours"},
+      {id:"no2",name:"Nitrogen oxides (NOx)",short:"NOx",src:7,what:"Gases from traffic, power plants and industry. They damage the airways and help form ozone.",snd:"An engine: short mechanical stabs over a rumble, faster, harsher and with exhaust bursts as levels rise.",col:[.36,.95,.30],voice:"engine",base:50,hazard:true,guide:13,gtext:"WHO guideline for nitrogen dioxide: 25 µg/m³ over 24 hours, about 13 ppb"},
+      {id:"o3",name:"Ozone",short:"Ozone",src:4,what:"Ozone at ground level forms in sunlight from other pollution. It is closely linked to asthma and other breathing conditions.",snd:"A high, glassy whistle that starts to tremble, wheeze and catch as levels rise.",col:[.66,.56,1],voice:"wheeze",base:74,hazard:true,guide:51,gtext:"WHO guideline: 100 µg/m³ over 8 hours, about 51 ppb"}]}
+};
+var rec=RECORDS.airquality,grids={},tex={},ids=null,ready=false;
+var S={lon:rec.start,swept:0,playing:false,done:false,rot:90,dragging:false,audUntil:0,solo:-1,demo:null,mark:null,on:defaultOn(),found:{},n:0};
+
+function defaultOn(){return rec.exclusive?[0,1,2,3].map(function(i){return i===rec.first}):[true,true,true,true]}
+function wrap(l){return((l+180)%360+360)%360-180}
+function fmtLon(l){var a=Math.round(Math.abs(l));return a===0||a===180?a+"°":a+"° "+(l<0?"W":"E")}
+function fmtLat(l){var a=Math.round(Math.abs(l));return a===0?"equator":a+"° "+(l<0?"S":"N")}
+function nice(s){return s===s.toUpperCase()?s.toLowerCase().replace(/\b\w/g,function(c){return c.toUpperCase()}):s}
+function css(c){return"rgb("+c.map(function(v){return Math.round(v*255)}).join(",")+")"}
+function placeAt(lat,lon){
+  if(!ids)return"";var x=Math.min(719,Math.floor((wrap(lon)+180)*2)),y=Math.max(0,Math.min(359,Math.floor((90-lat)*2))),i=(y*720+x)*4;
+  return ids[i]?META.countries[ids[i]]:ids[i+1]?nice(META.seas[ids[i+1]]):"open ocean"
+}
+/* air quality: the grid holds positions on NASA's colour bar; turn them into real values and into a 0-1 sound level */
+function scaleOf(i){return rec.id==="airquality"?META.scales[rec.layers[i].id]:null}
+function t2v(sc,t){var a=sc.anchors,i=1;while(i<a.length-1&&t>a[i][0])i++;var f=Math.max(0,Math.min(1,(t-a[i-1][0])/(a[i][0]-a[i-1][0])));
+  return sc.mode==="log"?Math.pow(10,Math.log10(a[i-1][1])+f*(Math.log10(a[i][1])-Math.log10(a[i-1][1]))):a[i-1][1]+f*(a[i][1]-a[i-1][1])}
+function v2t(sc,v){var a=sc.anchors,i=1;while(i<a.length-1&&v>a[i][1])i++;var lo=a[i-1],hi=a[i],f=sc.mode==="log"?(Math.log10(v)-Math.log10(lo[1]))/(Math.log10(hi[1])-Math.log10(lo[1])):(v-lo[1])/(hi[1]-lo[1]);return lo[0]+Math.max(0,Math.min(1,f))*(hi[0]-lo[0])}
+function band(r){return r>=2?{k:"b3",t:"Far above the WHO guideline",s:"Far above guideline"}:r>=1?{k:"b2",t:"Above the WHO guideline",s:"Above guideline"}:r>=.5?{k:"b1",t:"Within the WHO guideline",s:"Within guideline"}:{k:"b0",t:"Well within the WHO guideline",s:"Well within guideline"}}
+function ratioText(r){return r<.1?"under a tenth of the WHO guideline":(r<10?r.toFixed(1):Math.round(r))+"× the WHO guideline"}
+function fmtV(v,u){return(v<1?v.toPrecision(2):v<10?v.toFixed(1):String(Math.round(v)))+" "+u}
+function levelText(i,lvl){var sc=scaleOf(i);if(!sc)return String(Math.round(lvl*100));var tt=sc.floor+lvl*(sc.ceil-sc.floor);return(lvl>=.995?"at least ":"")+fmtV(t2v(sc,tt),sc.unit)}
+/* which instrument has data at this longitude? aerosols: all. air quality: one per 45-degree band, nothing east of 140 E */
+function valid(li,lon){if(!rec.bands)return true;var l=wrap(lon)+180;return l<320&&Math.floor(l/45)%4===li}
+function bandLayer(lon){var l=wrap(lon)+180;return l<320?Math.floor(l/45)%4:-1}
+
+/* ---------- analysis: read the data under the line ---------- */
+var prof=new Float32Array(180),sm=new Float32Array(180);
+function peaks(li,lon){
+  var g=grids[rec.id][li],l=wrap(lon)+180,x0=Math.floor(l)%360,x1=(x0+1)%360,f=l-Math.floor(l),r,i;
+  for(r=0;r<180;r++)prof[r]=g[r*360+x0]*(1-f)+g[r*360+x1]*f;
+  var sc=scaleOf(li);if(sc)for(r=0;r<180;r++)prof[r]=Math.max(0,Math.min(1,(prof[r]-sc.floor)/(sc.ceil-sc.floor)));
+  for(r=0;r<180;r++){var s=0,c=0;for(i=-2;i<=2;i++){var q=r+i;if(q>=0&&q<180){s+=prof[q];c++}}sm[r]=s/c}
+  var cand=[];for(r=8;r<172;r++)if(sm[r]>.1&&sm[r]>=sm[r-1]&&sm[r]>sm[r+1])cand.push(r);
+  cand.sort(function(a,b){return sm[b]-sm[a]});
+  var out=[];for(i=0;i<cand.length&&out.length<3;i++){var ok=true;for(var j=0;j<out.length;j++)if(Math.abs(out[j].row-cand[i])<14)ok=false;if(ok)out.push({row:cand[i],lat:89.5-cand[i],v:sm[cand[i]]})}
+  out.sort(function(a,b){return a.row-b.row});return out
+}
+
+/* ---------- audio ---------- */
+var ac=null,master,mix,rev,noiseBuf,voices=[],bed=null,STEP=60/104/4,nextT=0,T=0,armed=true,lastHit=-9,wasRun=false,vq=[];
+var above=[false,false,false,false];
+var SCALE=[0,2,3,5,7,8,10],ROOTS=[38,38,34,34,31,31,33,33];
+function mtof(m){return 440*Math.pow(2,(m-69)/12)}
+function pitch(base,lat,span){var d=Math.round((Math.max(-72,Math.min(72,lat))+72)/144*span);return base+12*Math.floor(d/7)+SCALE[d%7]}
+function pan(v){if(ac.createStereoPanner){var p=ac.createStereoPanner();p.pan.value=v;return p}return ac.createGain()}
+function initAudio(){
+  if(ac){if(ac.state==="suspended")ac.resume();return true}
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext;ac=new AC();
+    master=ac.createGain();master.gain.value=$("vol").value/100;
+    var comp=ac.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=4;comp.attack.value=.01;comp.release.value=.3;
+    mix=ac.createGain();mix.gain.value=.9;mix.connect(comp);comp.connect(master);master.connect(ac.destination);
+    var len=Math.floor(ac.sampleRate*3.2),ir=ac.createBuffer(2,len,ac.sampleRate);
+    for(var ch=0;ch<2;ch++){var d=ir.getChannelData(ch);for(var i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
+    rev=ac.createConvolver();rev.buffer=ir;var wet=ac.createGain();wet.gain.value=.34;rev.connect(wet);wet.connect(comp);mix.connect(rev);
+    noiseBuf=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate);var nd=noiseBuf.getChannelData(0);for(i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+    bed=makeBed();buildVoices();nextT=ac.currentTime+.06;setInterval(pump,25);return true
+  }catch(e){$("status").textContent="This browser blocked audio. Try Chrome, Firefox or Safari.";return false}
+}
+function noise(){var s=ac.createBufferSource();s.buffer=noiseBuf;s.loop=true;s.start();return s}
+/* sustained instruments: up to three notes held at once, one per hotspot on the line */
+function Sustain(kind,L,p){
+  var out=pan(p),subs=[],me=this,all=[];out.connect(mix);this.L=L;this.kind=kind;
+  var hiss=null;if(kind!=="brass"){var n=noise(),f=ac.createBiquadFilter();f.type=kind==="strings"?"bandpass":"highpass";f.frequency.value=kind==="strings"?2600:6500;f.Q.value=.6;hiss=ac.createGain();hiss.gain.value=0;n.connect(f);f.connect(hiss);hiss.connect(out);all.push(n)}
+  for(var j=0;j<3;j++){
+    var g=ac.createGain(),lp=ac.createBiquadFilter(),os=[];g.gain.value=0;lp.type="lowpass";lp.frequency.value=400;lp.Q.value=kind==="brass"?1.4:.7;lp.connect(g);g.connect(out);
+    var spec=kind==="brass"?[["sawtooth",-7,1,1],["sawtooth",7,1,1],["square",0,.5,.5]]:kind==="strings"?[["sawtooth",-9,1,1],["sawtooth",9,1,1],["sawtooth",0,2,.25]]:[["sine",0,1,1],["triangle",4,2,.25]];
+    spec.forEach(function(s){var o=ac.createOscillator(),og=ac.createGain();o.type=s[0];o.detune.value=s[1];og.gain.value=s[3];o.connect(og);og.connect(lp);o.start();os.push({o:o,mul:s[2]});all.push(o)});
+    if(kind!=="brass"){var lfo=ac.createOscillator(),lg=ac.createGain();lfo.frequency.value=kind==="strings"?5.1+j*.3:.7+j*.2;lg.gain.value=kind==="strings"?5:0;lfo.connect(lg);os.forEach(function(x){lg.connect(x.o.detune)});lfo.start();all.push(lfo)}
+    subs.push({g:g,lp:lp,os:os,live:false})
+  }
+  this.set=function(t,pk){
+    var top=0;
+    for(var j=0;j<3;j++){var s=subs[j],p=pk[j];
+      if(p){var f=mtof(pitch(L.base,p.lat,kind==="air"?10:14)),v=p.v;if(v>top)top=v;
+        s.os.forEach(function(x){s.live?x.o.frequency.setTargetAtTime(f*x.mul,t,kind==="brass"?.09:.14):x.o.frequency.setValueAtTime(f*x.mul,t)});
+        var amp=kind==="brass"?.035+.15*v:kind==="strings"?.03+.11*v:.02+.06*v;
+        s.g.gain.setTargetAtTime(amp,t,kind==="brass"?.12:.2);
+        s.lp.frequency.setTargetAtTime(kind==="brass"?170+2100*v*v:kind==="strings"?500+3200*v:1800+2500*v,t,.12);s.live=true}
+      else{s.g.gain.setTargetAtTime(0,t,.22);s.live=false}}
+    if(hiss)hiss.gain.setTargetAtTime(kind==="strings"?top*top*.035:top*.012,t,.2)
+  };
+  this.off=function(t){me.set(t,[])};
+  this.kill=function(t){me.set(t,[]);all.forEach(function(o){try{o.stop(t+1)}catch(_){}})}
+}
+/* struck instrument: arpeggiates the hotspots; busier when the level is higher */
+function Bell(L){
+  this.L=L;this.kind="bell";
+  this.set=function(t,pk,n){
+    if(!pk.length)return;var top=0;pk.forEach(function(p){if(p.v>top)top=p.v});
+    var div=top>.55?1:top>.25?2:4;if(n%div)return;
+    var p=pk[Math.floor(n/div)%pk.length],f=mtof(pitch(L.base,p.lat,14)+(Math.floor(n/div)%3===2?12:0)),vel=.035+.15*p.v;
+    var c=ac.createOscillator(),m=ac.createOscillator(),mg=ac.createGain(),g=ac.createGain(),pn=pan((n%2?.45:-.45));
+    m.frequency.value=f*3.51;mg.gain.setValueAtTime(f*2.2*(.4+p.v),t);mg.gain.exponentialRampToValueAtTime(1,t+.25);m.connect(mg);mg.connect(c.frequency);
+    c.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vel,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+.7);
+    c.connect(g);g.connect(pn);pn.connect(mix);c.start(t);m.start(t);c.stop(t+.75);m.stop(t+.75)
+  };
+  this.off=function(){};this.kill=function(){}
+}
+/* --- air quality: one instrument per pollutant, shaped by what it does to the body. p.r = level as a multiple of the WHO guideline --- */
+function nz(type,freq,q,dest){var n=noise(),f=ac.createBiquadFilter(),g=ac.createGain();f.type=type;f.frequency.value=freq;f.Q.value=q;g.gain.value=0;n.connect(f);f.connect(g);g.connect(dest);return{n:n,f:f,g:g}}
+function topOf(pk){var o={v:0,r:0};pk.forEach(function(p){if(p.v>o.v)o.v=p.v;if((p.r||0)>o.r)o.r=p.r});o.r=Math.min(o.r,2.2);return o}
+function heart(t,vel){var o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(78,t);o.frequency.exponentialRampToValueAtTime(40,t+.12);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vel,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+.22);o.connect(g);g.connect(mix);o.start(t);o.stop(t+.25)}
+function stab(t,f,vel,cut,p){var a=ac.createOscillator(),b=ac.createOscillator(),lp=ac.createBiquadFilter(),g=ac.createGain(),pn=pan(p);a.type="square";b.type="sawtooth";a.frequency.value=f;b.frequency.value=f*1.005;lp.type="lowpass";lp.frequency.value=cut;lp.Q.value=5;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vel,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+.11);a.connect(lp);b.connect(lp);lp.connect(g);g.connect(pn);pn.connect(mix);a.start(t);b.start(t);a.stop(t+.14);b.stop(t+.14)}
+function puff(t,vel){var s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=noiseBuf;f.type="highpass";f.frequency.value=3500;g.gain.setValueAtTime(vel,t);g.gain.exponentialRampToValueAtTime(.0001,t+.06);s.connect(f);f.connect(g);g.connect(mix);s.start(t,Math.random());s.stop(t+.08)}
+/* PM2.5: lungs and heart. Low strings, a breath that grows faster and raspier, a heartbeat that speeds up */
+function Lungs(L){
+  var out=ac.createGain(),all=[],me=this,nextBeat=0;out.connect(mix);
+  var subs=[0,1].map(function(){var g=ac.createGain(),lp=ac.createBiquadFilter(),dg=ac.createGain(),dis=ac.createOscillator();g.gain.value=0;dg.gain.value=0;lp.type="lowpass";lp.frequency.value=400;lp.connect(g);g.connect(out);
+    var os=[-8,8].map(function(d){var o=ac.createOscillator();o.type="sawtooth";o.detune.value=d;o.connect(lp);o.start();all.push(o);return o});
+    dis.type="sawtooth";dis.connect(dg);dg.connect(lp);dis.start();all.push(dis);return{g:g,lp:lp,os:os,dis:dis,dg:dg,live:false}});
+  var br=nz("bandpass",620,.8,out),rasp=nz("bandpass",2700,3,out),lfo=ac.createOscillator(),ld=ac.createGain(),lr=ac.createGain();
+  lfo.frequency.value=.22;ld.gain.value=0;lr.gain.value=0;lfo.connect(ld);ld.connect(br.g.gain);lfo.connect(lr);lr.connect(rasp.g.gain);lfo.start();all.push(lfo,br.n,rasp.n);
+  this.set=function(t,pk){
+    var m=topOf(pk);
+    for(var j=0;j<2;j++){var s=subs[j],p=pk[j];
+      if(p){var f=mtof(pitch(L.base,p.lat,14)),r=Math.min(p.r||0,2.2);s.os.forEach(function(o){s.live?o.frequency.setTargetAtTime(f,t,.14):o.frequency.setValueAtTime(f,t)});
+        s.live?s.dis.frequency.setTargetAtTime(f*1.0595,t,.14):s.dis.frequency.setValueAtTime(f*1.0595,t);
+        s.dg.gain.setTargetAtTime(Math.max(0,Math.min(1,r-.9))*.6,t,.3);s.g.gain.setTargetAtTime(.03+.1*p.v,t,.2);s.lp.frequency.setTargetAtTime(330+1500*p.v+500*r,t,.15);s.live=true}
+      else{s.g.gain.setTargetAtTime(0,t,.22);s.live=false}}
+    lfo.frequency.setTargetAtTime(.2+.34*m.r,t,.6);
+    var d=m.v?.014+.03*m.v:0,rd=m.v?Math.max(0,m.r-.5)*.012:0;
+    br.g.gain.setTargetAtTime(d,t,.25);ld.gain.setTargetAtTime(d,t,.25);rasp.g.gain.setTargetAtTime(rd,t,.25);lr.gain.setTargetAtTime(rd,t,.25);
+    if(m.v>0){var gap=60/(52+48*m.r/2.2);if(nextBeat<t-.5)nextBeat=t;while(nextBeat<t+STEP){var bt=Math.max(nextBeat,t),vel=.1+.2*m.v;heart(bt,vel);heart(bt+Math.min(.18,gap*.3),vel*.6);nextBeat+=gap}}
+  };
+  this.off=function(t){me.set(t,[])};this.kill=function(t){me.set(t,[]);all.forEach(function(o){try{o.stop(t+1)}catch(_){}})}
+}
+/* Ozone: the airways. A high whistle that beats, trembles, wheezes and, above the guideline, catches */
+function Wheeze(L){
+  var out=ac.createGain(),cg=ac.createGain(),tg=ac.createGain(),all=[],me=this;tg.gain.value=1;cg.gain.value=1;tg.connect(cg);cg.connect(out);out.connect(mix);
+  var trem=ac.createOscillator(),td=ac.createGain();trem.frequency.value=3;td.gain.value=0;trem.connect(td);td.connect(tg.gain);trem.start();all.push(trem);
+  var subs=[0,1].map(function(){var g=ac.createGain(),a=ac.createOscillator(),b=ac.createOscillator(),bg=ac.createGain(),w=nz("bandpass",2000,28,g);
+    g.gain.value=0;bg.gain.value=.7;a.connect(g);b.connect(bg);bg.connect(g);g.connect(tg);a.start();b.start();all.push(a,b,w.n);return{g:g,a:a,b:b,w:w,live:false}});
+  this.set=function(t,pk,n){
+    var m=topOf(pk),k=m.r/2.2;
+    for(var j=0;j<2;j++){var s=subs[j],p=pk[j];
+      if(p){var f=mtof(pitch(L.base,p.lat,10)),r=Math.min(p.r||0,2.2),f2=f*Math.pow(2,(5+26*r)/1200);
+        if(s.live){s.a.frequency.setTargetAtTime(f,t,.12);s.b.frequency.setTargetAtTime(f2,t,.12);s.w.f.frequency.setTargetAtTime(f,t,.12)}else{s.a.frequency.setValueAtTime(f,t);s.b.frequency.setValueAtTime(f2,t);s.w.f.frequency.setValueAtTime(f,t)}
+        s.w.g.gain.setTargetAtTime(.6+2.6*r/2.2,t,.2);s.g.gain.setTargetAtTime(.02+.055*p.v,t,.2);s.live=true}
+      else{s.g.gain.setTargetAtTime(0,t,.22);s.live=false}}
+    trem.frequency.setTargetAtTime(3+8*k,t,.4);td.gain.setTargetAtTime(m.v?.06+.5*Math.min(1,m.r/1.5):0,t,.3);
+    if(m.r>=1&&n%8===5){cg.gain.cancelScheduledValues(t);cg.gain.setValueAtTime(1,t);cg.gain.linearRampToValueAtTime(.05,t+.03);cg.gain.linearRampToValueAtTime(1,t+.14)}
+  };
+  this.off=function(t){me.set(t,[],0)};this.kill=function(t){me.set(t,[],0);all.forEach(function(o){try{o.stop(t+1)}catch(_){}})}
+}
+/* Nitrogen oxides: combustion. An engine that idles, then revs: stabs get faster and harsher, with exhaust bursts above the guideline */
+function Engine(L){
+  var out=ac.createGain(),all=[],me=this;out.connect(mix);
+  var idle=ac.createOscillator(),ilp=ac.createBiquadFilter(),ig=ac.createGain(),am=ac.createOscillator(),ad=ac.createGain();
+  idle.type="sawtooth";idle.frequency.value=49;ilp.type="lowpass";ilp.frequency.value=220;ig.gain.value=0;am.type="square";am.frequency.value=6;ad.gain.value=0;
+  idle.connect(ilp);ilp.connect(ig);ig.connect(out);am.connect(ad);ad.connect(ig.gain);idle.start();am.start();all.push(idle,am);
+  this.set=function(t,pk,n){
+    var m=topOf(pk),base=m.v?.02+.05*m.v:0;ig.gain.setTargetAtTime(base,t,.2);ad.gain.setTargetAtTime(base*.8,t,.2);am.frequency.setTargetAtTime(5+13*m.r/2.2,t,.3);
+    if(!pk.length)return;var div=m.r<.25?4:m.r<.6?2:1;
+    if(n%div===0){var p=pk[Math.floor(n/div)%pk.length],f=mtof(pitch(L.base,p.lat,14)),vel=.04+.11*p.v;stab(t,f,vel,700+2600*p.v,n%2?.35:-.35);if((p.r||0)>=1)stab(t,f/2,vel*.8,500,0)}
+    if(m.r>=1&&n%2===1)puff(t,.02+.03*Math.min(1,m.r-1))
+  };
+  this.off=function(t){me.set(t,[],0)};this.kill=function(t){me.set(t,[],0);all.forEach(function(o){try{o.stop(t+1)}catch(_){}})}
+}
+/* Carbon monoxide: oxygen loss. A low drone that swells slowly; higher levels make it slower, duller and more sagging, never agitated */
+function Drowse(L){
+  var out=ac.createGain(),sw=ac.createGain(),all=[],me=this;sw.gain.value=1;sw.connect(out);out.connect(mix);
+  var sl=ac.createOscillator(),sd=ac.createGain(),sag=ac.createOscillator(),sg=ac.createGain();sl.frequency.value=.16;sd.gain.value=.35;sl.connect(sd);sd.connect(sw.gain);sag.frequency.value=.07;sg.gain.value=10;sag.connect(sg);sl.start();sag.start();all.push(sl,sag);
+  var subs=[0,1].map(function(){var g=ac.createGain(),lp=ac.createBiquadFilter();g.gain.value=0;lp.type="lowpass";lp.frequency.value=380;lp.connect(g);g.connect(sw);
+    var os=[["sine",1,1],["triangle",2,.35],["sine",.5,.5]].map(function(s){var o=ac.createOscillator(),og=ac.createGain();o.type=s[0];og.gain.value=s[2];o.connect(og);og.connect(lp);sg.connect(o.detune);o.start();all.push(o);return{o:o,mul:s[1]}});
+    return{g:g,lp:lp,os:os,live:false}});
+  this.set=function(t,pk){
+    var m=topOf(pk),k=Math.min(1,m.r);
+    for(var j=0;j<2;j++){var s=subs[j],p=pk[j];
+      if(p){var f=mtof(pitch(L.base,p.lat,14));s.os.forEach(function(x){s.live?x.o.frequency.setTargetAtTime(f*x.mul,t,.3):x.o.frequency.setValueAtTime(f*x.mul,t)});
+        s.g.gain.setTargetAtTime(.05+.13*p.v,t,.4);s.lp.frequency.setTargetAtTime(520-300*k+350*p.v,t,.3);s.live=true}
+      else{s.g.gain.setTargetAtTime(0,t,.3);s.live=false}}
+    sl.frequency.setTargetAtTime(.17-.09*k,t,1);sg.gain.setTargetAtTime(10+45*k,t,1)
+  };
+  this.off=function(t){me.set(t,[])};this.kill=function(t){me.set(t,[]);all.forEach(function(o){try{o.stop(t+1)}catch(_){}})}
+}
+var VOICES={bell:Bell,lungs:Lungs,wheeze:Wheeze,engine:Engine,drowse:Drowse};
+function alarm(t,up){var a=up?[74,79]:[81,80,81,80];a.forEach(function(m,i){tone(t+i*(up?.16:.17),mtof(m),.07,up?.9:.4,"triangle",5000,i%2?.25:-.25)})}
+function buildVoices(){
+  voices.forEach(function(v){v.kill(ac.currentTime)});
+  voices=rec.layers.map(function(L,i){return VOICES[L.voice]?new VOICES[L.voice](L):new Sustain(L.voice,L,[-.3,.3,0,0][i])});above=[false,false,false,false]
+}
+/* the score underneath: pulse, pad and hits that follow the tension of the worst value on the line */
+function makeBed(){
+  var b={},lp=ac.createBiquadFilter();lp.type="lowpass";lp.frequency.value=500;b.lp=lp;b.pad=ac.createGain();b.pad.gain.value=0;lp.connect(b.pad);b.pad.connect(mix);
+  b.osc=[0,7,15,12].map(function(iv,i){var o=ac.createOscillator();o.type="sawtooth";o.detune.value=(i%2?6:-6);o.frequency.value=mtof(50+iv);o.connect(lp);o.start();return{o:o,iv:iv}});
+  b.dis=ac.createOscillator();b.dis.type="sawtooth";b.disg=ac.createGain();b.disg.gain.value=0;b.dis.connect(b.disg);b.disg.connect(lp);b.dis.start();
+  b.sub=ac.createOscillator();b.sub.type="sine";b.subg=ac.createGain();b.subg.gain.value=0;b.sub.connect(b.subg);b.subg.connect(mix);b.sub.start();
+  return b
+}
+function tone(t,f,vel,dur,type,cut,p){var o=ac.createOscillator(),lp=ac.createBiquadFilter(),g=ac.createGain(),pn=pan(p||0);o.type=type;o.frequency.value=f;lp.type="lowpass";lp.frequency.value=cut;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vel,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(lp);lp.connect(g);g.connect(pn);pn.connect(mix);o.start(t);o.stop(t+dur+.05)}
+function boom(t,vel){var o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(82,t);o.frequency.exponentialRampToValueAtTime(30,t+.9);g.gain.setValueAtTime(vel,t);g.gain.exponentialRampToValueAtTime(.0001,t+1.6);o.connect(g);g.connect(mix);o.start(t);o.stop(t+1.7);
+  var s=ac.createBufferSource(),f=ac.createBiquadFilter(),ng=ac.createGain();s.buffer=noiseBuf;f.type="lowpass";f.frequency.setValueAtTime(900,t);f.frequency.exponentialRampToValueAtTime(90,t+.8);ng.gain.setValueAtTime(vel*.5,t);ng.gain.exponentialRampToValueAtTime(.0001,t+1);s.connect(f);f.connect(ng);ng.connect(mix);s.start(t);s.stop(t+1.1)}
+function chime(t){tone(t,mtof(86),.05,1.4,"sine",9000,.3);tone(t+.11,mtof(93),.045,1.6,"sine",9000,-.3)}
+function scoreStep(t,n,quiet){
+  var root=ROOTS[Math.floor(n/16)%8],k=quiet?0:1;
+  bed.osc.forEach(function(x){x.o.frequency.setTargetAtTime(mtof(root+12+x.iv),t,.25)});
+  bed.dis.frequency.setTargetAtTime(mtof(root+25),t,.25);bed.sub.frequency.setTargetAtTime(mtof(root-12),t,.2);
+  bed.pad.gain.setTargetAtTime(k*(.012+.05*T),t,.4);bed.lp.frequency.setTargetAtTime(380+1700*T*T,t,.3);
+  bed.disg.gain.setTargetAtTime(k*.5*Math.max(0,T-.55),t,.4);bed.subg.gain.setTargetAtTime(k*(.05+.13*T),t,.3);
+  if(quiet||rec.exclusive)return;
+  var fast=T>.6;
+  if(fast||n%2===0){var pat=[0,0,7,0,0,7,0,12],semi=pat[(fast?n:n/2)%8|0];tone(t,mtof(root+12+semi),.012+.15*T*T+(n%4===0?.02*T:0),.16,"sawtooth",700+2600*T,0)}
+  if(T<.22&&n%8===0)tone(t,mtof(root),.06,.5,"sine",300,0);
+  if(T>.68&&armed&&t-lastHit>5){boom(t,.5);tone(t,mtof(root+12),.12,2.2,"sawtooth",900,-.2);tone(t,mtof(root+19),.1,2.2,"sawtooth",900,.2);armed=false;lastHit=t}
+  if(T<.45)armed=true
+}
+function silence(t){voices.forEach(function(v){v.off(t)});scoreStep(t,S.n,true)}
+
+/* ---------- one step of the clock ---------- */
+function step(t){
+  var lon=S.lon,run=S.playing||S.dragging||t<S.audUntil,info=[],dots=[],tgt=0,i;
+  for(i=0;i<4;i++){
+    var L=rec.layers[i],ok=valid(i,lon),pk=ok?peaks(i,lon):[],lvl=0,best=null;
+    var sc=scaleOf(i);if(sc&&L.guide)pk.forEach(function(p){p.r=t2v(sc,sc.floor+p.v*(sc.ceil-sc.floor))/L.guide});
+    pk.forEach(function(p){if(p.v>lvl){lvl=p.v;best=p}});
+    var heard=ok&&S.on[i]&&(S.solo<0||S.solo===i)&&!S.demo,rmax=best&&best.r?best.r:0;
+    if(S.demo&&S.demo.li===i&&t<S.demo.until){var ph=(S.demo.until-t)/S.demo.dur;pk=L.guide?[{lat:20,v:.3+.65*(1-ph),r:2.2*(1-ph)}]:[{lat:60-120*ph,v:.45+.5*Math.sin(Math.PI*ph)}];heard=true}
+    if(heard&&L.hazard)tgt=Math.max(tgt,L.guide?Math.min(1,rmax/1.6):lvl);
+    if(L.guide&&heard&&run&&!S.demo){
+      if(!above[i]&&rmax>=1){above[i]=true;alarm(t,false);say("Above the WHO guideline: "+L.name+", "+levelText(i,lvl)+" over "+placeAt(best.lat,lon)+".")}
+      else if(above[i]&&rmax<.85){above[i]=false;alarm(t,true);say(L.name+" back below the WHO guideline.")}}
+    if(run)voices[i].set(t,heard?pk:[],S.n);
+    if(heard&&run)pk.forEach(function(p){dots.push({lat:p.lat,li:i,v:p.v})});
+    info.push({ok:ok,lvl:lvl,best:best,r:rmax})
+  }
+  if(S.demo&&t>=S.demo.until)S.demo=null;
+  if(run){T+=(tgt-T)*.22;scoreStep(t,S.n,!!S.demo);wasRun=true}else if(wasRun){silence(t);wasRun=false;T=0}
+  vq.push({t:t,lon:lon,info:info,dots:dots,run:run});if(vq.length>40)vq.shift();
+  if(S.playing&&!S.dragging){
+    var d=360/(S.rot/STEP),nl=lon-d;
+    discover(lon,nl,t);S.lon=wrap(nl);S.swept+=d;
+    if(S.swept>=rec.sweep)finish(t)
+  }
+  S.n++
+}
+function probe(){var info=[];for(var i=0;i<4;i++){var ok=valid(i,S.lon),pk=ok?peaks(i,S.lon):[],lv=0,b=null;pk.forEach(function(p){if(p.v>lv){lv=p.v;b=p}});var sc=scaleOf(i),L=rec.layers[i];info.push({ok:ok,lvl:lv,best:b,r:sc&&L.guide&&b?t2v(sc,sc.floor+lv*(sc.ceil-sc.floor))/L.guide:0})}vq.push({t:-1,lon:S.lon,info:info,dots:[],run:false});if(vq.length>40)vq.shift()}
+function pump(){if(!ready)return;if(nextT<ac.currentTime-.5)nextT=ac.currentTime+.05;while(nextT<ac.currentTime+.2){step(nextT);nextT+=STEP}}
+function discover(a,b,t){
+  rec.layers.forEach(function(L,i){if(!S.on[i]||!L.hazard)return;(META.records[rec.id][L.id].places||[]).slice(0,5).forEach(function(p){
+    var key=L.id+"|"+p.name;if(S.found[key])return;var d=wrap(a-p.lon);
+    if(d>=0&&d<=(a-b)+.001){S.found[key]=true;chime(t);addFound(L,p)}})})
+}
+
+/* ---------- tour control ---------- */
+function setPlay(p){
+  if(p&&!initAudio())return;if(p&&S.done)restart();
+  S.playing=p;$("playtxt").textContent=p?"Pause":S.swept>0?"Resume":"Start the sweep";
+  $("playicon").setAttribute("d",p?"M2 1h4v12H2zM8 1h4v12H8z":"M2 1l11 6-11 6z");
+  $("status").textContent=p?"":S.done?"Tour complete. The report is below.":"";
+  if(p)say("Sweep started from "+fmtLon(S.lon)+".")
+}
+function restart(){S.lon=rec.start;S.swept=0;S.done=false;S.found={};S.solo=-1;S.mark=null;$("found").textContent="";$("foundempty").hidden=false;$("repeyebrow").textContent="Available any time";renderReport();progress()}
+function finish(t){
+  S.playing=false;S.done=true;S.swept=rec.sweep;
+  [50,57,62,65].forEach(function(m,i){tone(t+.05*i,mtof(m),.09,3.5,"sawtooth",1100,(i-1.5)*.3)});boom(t,.35);
+  setTimeout(function(){setPlay(false);$("playtxt").textContent="Play again";$("repeyebrow").textContent="End of the tour";showReport(true);say("Tour complete. The hazard report is ready.")},600)
+}
+function audition(sec){if(!initAudio())return;S.audUntil=ac.currentTime+sec}
+function say(m){$("live").textContent=m}
+
+/* ---------- report ---------- */
+function addFound(L,p){
+  $("foundempty").hidden=true;var li=document.createElement("li");li.style.setProperty("--c",css(L.col));
+  li.innerHTML="<i></i><div></div><span></span>";li.children[1].textContent=L.name+" over "+p.name;li.children[2].textContent=p.val||p.peak+" / 100";
+  $("found").appendChild(li);$("found").scrollTop=1e5;say("Found: "+L.name+" over "+p.name+", "+(p.val||"level "+p.peak+" of 100")+".");markUnswept()
+}
+function markUnswept(){Array.prototype.forEach.call(document.querySelectorAll("#repcols li[data-key]"),function(li){li.classList.toggle("unswept",!S.done&&S.on[+li.dataset.li]&&!S.found[li.dataset.key])})}
+function renderReport(){
+  var R=META.records[rec.id],cols=$("repcols"),sum=$("repsum");cols.textContent="";sum.textContent="";
+  var hb=document.createElement("b");hb.textContent="What this snapshot shows";sum.appendChild(hb);
+  if(rec.id==="airquality"){
+    var parts=rec.layers.map(function(L){var d=R[L.id];return{L:L,a:d.above,n:d.total}}).sort(function(x,y){return y.a-x.a});
+    var txt=parts.map(function(p){return p.L.name+": "+(p.a?"above the WHO guideline in "+p.a+" of "+p.n+" countries":"not above the WHO guideline in any of "+p.n+" countries")}).join(". ")+".";
+    sum.appendChild(document.createTextNode("On 30 October 2026, in NASA's model: "+txt+" Counts use each country's strongest area, smoothed, so they are on the low side."))
+  }else sum.appendChild(document.createTextNode("NASA's aerosol picture has no units, so it cannot be compared with health guidelines. It shows where each kind of particle was strongest on 19 August 2025. For health levels, use the Air quality and health view."));
+  $("repnote").textContent=rec.id==="aerosols"
+    ?"Levels are relative: 100 is the strongest signal of that particle type anywhere in this one NASA picture. They are not health measurements. Each country is scored by its strongest area, smoothed over roughly 150 km."
+    :"Values are single-moment model values read from NASA's colour bars. They are not measurements or health advice. Comparisons with WHO guidelines are rough: the guidelines are for 8- or 24-hour averages, the nitrogen guideline is for nitrogen dioxide alone, and ppb conversions assume 25 °C. \"At least\" means the colour is at the top of NASA's scale.";
+  rec.layers.forEach(function(L,i){
+    var d=R[L.id],box=document.createElement("div");box.className="rank";box.style.setProperty("--c",css(L.col));
+    var h=document.createElement("h3");h.innerHTML="<i></i>";h.appendChild(document.createTextNode(L.name));box.appendChild(h);
+    var sub=document.createElement("p");sub.className="sub";sub.textContent=(L.hazard?"The five countries with the strongest areas.":"Natural background. Shown for reference, not a health hazard ranking.")+(L.gtext?" "+L.gtext+".":"");box.appendChild(sub);
+    var ol=document.createElement("ol");
+    d.places.slice(0,5).forEach(function(p){
+      var li=document.createElement("li");if(L.hazard){li.dataset.key=L.id+"|"+p.name;li.dataset.li=i}
+      var pl=document.createElement("span");pl.className="pl";pl.textContent=p.name;
+      var pr=p.v&&L.guide?p.v/L.guide:0;
+      if(pr){var bd=band(pr),pill=document.createElement("span");pill.className="pill sm "+bd.k;pill.textContent=bd.s;pl.appendChild(pill)}
+      var b=document.createElement("button");b.className="mini";b.textContent="Hear it";b.setAttribute("aria-label","Hear "+L.name+" over "+p.name);b.onclick=function(){hear(i,p)};
+      var det=document.createElement("span");det.className="det";
+      det.textContent=(p.val?"Peak "+p.val+(pr?", "+ratioText(pr):""):"Level "+p.peak+" of 100")+(p.near?", near "+p.near:"")+". Country average "+(p.meanv||p.mean)+".";
+      var lv=document.createElement("span");lv.className="lvl";lv.innerHTML="<b></b>";lv.firstChild.style.width=p.peak+"%";
+      li.appendChild(pl);li.appendChild(b);li.appendChild(det);li.appendChild(lv);ol.appendChild(li)});
+    box.appendChild(ol);
+    if(d.seas&&d.seas.length){var s=document.createElement("p");s.className="sea";s.textContent="Strongest over water: "+d.seas.map(function(x){return nice(x.name)+" ("+(x.val||x.peak)+")"}).join(", ")+".";box.appendChild(s)}
+    cols.appendChild(box)});
+  markUnswept()
+}
+function showReport(focus){$("report").hidden=false;markUnswept();if(focus){$("report").scrollIntoView({behavior:still?"auto":"smooth",block:"start"});$("report").focus({preventScroll:true})}}
+function hear(i,p){
+  if(!initAudio())return;if(S.playing)setPlay(false);if(rec.exclusive&&!S.on[i])toggle(i);S.lon=p.lon;S.solo=i;S.mark={lat:p.lat,until:performance.now()+4200};audition(4);
+  say("Playing "+rec.layers[i].name+" over "+p.name+".");setTimeout(function(){if(S.solo===i&&!S.playing)S.solo=-1},4300)
+}
+
+/* ---------- interface ---------- */
+function buildUI(){
+  var rg=$("records");rg.textContent="";
+  ["airquality","aerosols"].forEach(function(k){var r=RECORDS[k],b=document.createElement("button");b.className="record";b.setAttribute("role","radio");b.setAttribute("aria-checked",r===rec);
+    b.innerHTML='<img alt=""><div><b></b><span></span></div>';b.firstChild.src=r.cover;b.querySelector("b").textContent=r.title;b.querySelector("span").textContent=r.date;
+    b.onclick=function(){if(r!==rec)setRecord(r)};rg.appendChild(b)});
+  var ul=$("layers"),tabs=$("tabs");ul.textContent="";tabs.textContent="";ul.classList.toggle("one",!!rec.exclusive);
+  $("mixtitle").textContent=rec.exclusive?"Choose a pollutant":"Particle types: switch each on or off";
+  rec.layers.forEach(function(L,i){
+    if(rec.exclusive){var tb=document.createElement("button");tb.className="tab";tb.id="tab"+i;tb.setAttribute("role","radio");tb.setAttribute("aria-checked",S.on[i]);tb.setAttribute("aria-label",L.name);tb.style.setProperty("--c",css(L.col));tb.innerHTML="<i></i><span></span>";tb.lastChild.textContent=L.short;tb.onclick=function(){toggle(i)};tabs.appendChild(tb)}
+    var li=document.createElement("li");li.className="layer";li.id="layer"+i;li.style.setProperty("--c",css(L.col));
+    li.innerHTML='<div class="lhead"><button class="sw" role="switch"></button><span class="dot"></span><strong class="lname"></strong><kbd></kbd><button class="mini">Preview sound</button></div><div class="meter" aria-hidden="true"><b></b></div><p class="where"></p><details class="more"><summary>What it is and how it sounds</summary><dl class="facts"><div><dt></dt><dd class="what"></dd></div><div><dt>Health guideline</dt><dd class="gd"></dd></div><div><dt>What you hear</dt><dd class="snd"></dd></div><div><dt>NASA scale</dt><dd class="scl"></dd></div></dl></details>';
+    var sw=li.querySelector(".sw");sw.setAttribute("aria-checked",S.on[i]);sw.setAttribute("aria-label",L.name);sw.onclick=function(){toggle(i)};li.classList.toggle("off",!S.on[i]);
+    li.querySelector(".lname").textContent=L.name;li.querySelector("kbd").textContent=i+1;li.querySelector("dt").textContent=L.guide?"Health effect":"What it is";
+    var wh=li.querySelector(".what");wh.textContent=L.what;if(L.src){var sp=document.createElement("sup"),sa=document.createElement("a");sa.href="#src"+L.src;sa.textContent=L.src;sa.setAttribute("aria-label","Source "+L.src);sp.appendChild(sa);wh.appendChild(sp)}
+    li.querySelector(".snd").textContent=L.snd;if(rec.exclusive)li.querySelector("details").open=true;
+    var sc=scaleOf(i);if(sc)li.querySelector(".scl").textContent=sc.min+" to "+fmtV(sc.max,sc.unit)+". Sound runs from "+sc.floorv+" to "+fmtV(sc.ceilv,sc.unit)+".";else li.querySelector(".scl").parentNode.hidden=true;
+    if(L.gtext){var gd=li.querySelector(".gd");gd.textContent=L.gtext.replace("WHO guideline: ","WHO: ").replace("WHO guideline for nitrogen dioxide: ","WHO, for nitrogen dioxide: ")+".";var g1=document.createElement("sup"),g2=document.createElement("a");g2.href="#src1";g2.textContent="1";g2.setAttribute("aria-label","Source 1");g1.appendChild(g2);gd.appendChild(g1);
+      var gp=(v2t(sc,L.guide)-sc.floor)/(sc.ceil-sc.floor);if(gp>0&&L.guide<=sc.ceilv){var mk=document.createElement("u");mk.style.left="calc("+(gp*100)+"% - 1px)";mk.title="WHO guideline";li.querySelector(".meter").appendChild(mk)}}
+    else li.querySelector(".gd").parentNode.hidden=true;
+    var pv=li.querySelector(".mini");if(L.guide)pv.title="Plays from clean air up to twice the health guideline";pv.setAttribute("aria-label","Preview the sound of "+L.name+(L.guide?", from clean air to twice the health guideline":""));
+    pv.onclick=function(){if(!initAudio())return;var d=L.guide?4.6:2.4;S.demo={li:i,until:ac.currentTime+d,dur:d};audition(d+.3)};
+    ul.appendChild(li)});
+  $("about").innerHTML="";
+  var ab=[["p","Both pictures come from NASA's Scientific Visualization Studio and are used here as data. Country outlines and place names used for the report come from Natural Earth. The picture of the Earth's surface is from Solar System Scope (CC BY 4.0), based on NASA imagery; it is a cloud-free composite, not a photo from the dates of the data, and the lighting is artistic."],
+    ["p","Aerosols (NASA SVS 5669): one model snapshot for 19 August 2025, 20:00 UTC. NASA colours soot red, dust lilac, sea salt grey-blue and sulfate green. Each pixel's colour was split back into its two nearest legend colours to recover four separate layers. Sea salt cannot be told apart from the grey land base map, so it is only read over water."],
+    ["p","Air quality (NASA SVS 5151, 5152, 5153 and 5154; credit: NASA's Global Modeling and Assimilation Office): one frame from each of four animations of near-surface PM2.5, ozone, carbon monoxide and nitrogen oxides from the GEOS-CF model, each stamped 30 October 2026, 05:00 EDT. Every pixel is matched to the nearest colour on NASA's published colour bar and converted with the bar's labels: carbon monoxide 40 to 500 ppb, nitrogen oxides 0.001 to about 20 ppb (logarithmic), ozone 5 to 60 ppb, PM2.5 0.4 to 409.6 µg/m³ (doubling steps)."],
+    ["p","Assumptions in that reading: for nitrogen oxides and ozone the map turns see-through at the low, white end of the bar, showing a black sea and pale land underneath. Over the sea, how see-through it is is used to place values in that low range; over land the low range cannot be seen, so it is set to the middle of it. NASA's drawn coastlines, borders and lakes are detected and filled in from their surroundings, which also softens cities and other small sources. The corners hidden by NASA's logo and date stamp are treated as missing. The sound is silent below a floor and loudest at a ceiling for each pollutant, both shown on its card."],
+    ["p","Air-quality sound: each pollutant has its own instrument, shaped by what it does to the body, and its character changes with the level as a multiple of the WHO health guideline (PM2.5 15 µg/m³ over 24 hours; ozone 100 µg/m³ over 8 hours; nitrogen dioxide 25 µg/m³ over 24 hours; carbon monoxide 4 mg/m³ over 24 hours). PM2.5 is breathing and a heartbeat that quicken. Ozone is a whistle that trembles and catches. Nitrogen oxides are an engine that revs. Carbon monoxide is a drone that grows duller and slower. A falling four-note signal marks crossing above a guideline and a rising two-note signal marks dropping back below it. Carbon monoxide never reaches its guideline in NASA's map, whose scale tops out at 500 ppb."],
+    ["p","Sound: position along the line sets pitch (north high, south low) in D minor. Each layer is one instrument and plays at most its three strongest hotspots on the line, so separate hotspots stay separate notes. The pulse, pad and low hits underneath follow the single highest hazard value on the line, not the sum."],
+    ["p","Limits: these are relative levels in visualizations of model output, each for one moment, and the two records are a year apart. Nothing here is a health measurement or a forecast."]];
+  ab.forEach(function(x){var e=document.createElement(x[0]);e.textContent=x[1];$("about").appendChild(e)});
+  $("flatimg").src=rec.cover;$("flatline").hidden=!!rec.exclusive
+}
+function toggle(i){
+  if(rec.exclusive){if(S.on[i])return;S.on=[0,1,2,3].map(function(j){return j===i});S.solo=-1}else S.on[i]=!S.on[i];
+  above=[false,false,false,false];
+  for(var j=0;j<4;j++){var li=$("layer"+j);li.classList.toggle("off",!S.on[j]);li.querySelector(".sw").setAttribute("aria-checked",S.on[j]);var tb=$("tab"+j);if(tb)tb.setAttribute("aria-checked",S.on[j])}
+  hud(true);
+  markUnswept();say(rec.layers[i].name+(rec.exclusive?" selected.":S.on[i]?" on.":" off."))
+}
+function setRecord(r){
+  var was=S.playing;if(was)setPlay(false);rec=r;S.on=defaultOn();buildUI();restart();if(ac)buildVoices();bindTextures();vq.length=0;probe();hud(true);
+  $("playtxt").textContent="Start the sweep";say(r.title+" view loaded.")
+}
+function progress(){var p=Math.min(1,S.swept/rec.sweep);$("progfill").style.width=(p*100)+"%";$("progbar").setAttribute("aria-valuenow",Math.round(p*100));$("progtxt").textContent=Math.round(Math.min(S.swept,rec.sweep))+"° of "+rec.sweep+"° swept"+(S.done?" · tour complete":"")}
+var lastHud=0,lastSay=0;
+function hud(force){
+  var now=performance.now();if(!force&&now-lastHud<120)return;lastHud=now;
+  var q=vq.length?vq[vq.length-1]:null,lon=S.lon;
+  $("lonread").textContent=fmtLon(lon);$("gl").setAttribute("aria-valuenow",Math.round(lon));$("gl").setAttribute("aria-valuetext",fmtLon(lon));progress();
+  var bl=rec.bands?bandLayer(lon):-2;
+  $("band").innerHTML="";if(rec.bands){var b=document.createElement("b");b.textContent=bl<0?"No data here":rec.layers[bl].name;$("band").appendChild(document.createTextNode(bl<0?"":"This band shows "));$("band").appendChild(b);if(bl<0)$("band").appendChild(document.createTextNode(": the NASA frame stops at 140° E"))}
+  if(!q)return;var top=null;
+  q.info.forEach(function(f,i){var li=$("layer"+i);if(!li)return;li.classList.toggle("away",!f.ok);
+    li.querySelector(".meter b").style.width=(f.ok&&S.on[i]?Math.round(f.lvl*100):0)+"%";
+    var w=!S.on[i]?(rec.exclusive?"":"Switched off"):!f.ok?"Not shown at this longitude":!f.best?(scaleOf(i)?"Below "+fmtV(scaleOf(i).floorv,scaleOf(i).unit)+" along the whole line":"Clear along the whole line"):(scaleOf(i)?levelText(i,f.lvl)+(f.r?", "+ratioText(f.r):""):"Level "+Math.round(f.lvl*100)+" of 100")+". Strongest at "+fmtLat(f.best.lat)+", "+placeAt(f.best.lat,lon)+".";
+    li.querySelector(".where").textContent=w;if(f.ok&&S.on[i]&&f.best&&(!top||f.lvl>top.lvl))top={lvl:f.lvl,i:i,best:f.best}});
+  var sel=rec.exclusive?Math.max(0,S.on.indexOf(true)):(top?top.i:-1),hp=$("hpill"),f=sel>=0?q.info[sel]:null,L=sel>=0?rec.layers[sel]:null;
+  if(!f||!f.best){hp.className="pill "+(rec.exclusive?"b0":"bn");hp.textContent=rec.exclusive?"Well within the WHO guideline":"Clear air under the line";
+    $("hval").textContent=rec.exclusive?"Below "+fmtV(scaleOf(sel).floorv,scaleOf(sel).unit):"Clear";$("hname").textContent=rec.exclusive?L.name+" under the line":"no strong particle signal";$("hwhere").textContent="Along the whole line, from pole to pole."}
+  else if(rec.exclusive){var bd=band(f.r);hp.className="pill "+bd.k;hp.textContent=bd.t;$("hval").textContent=levelText(sel,f.lvl);$("hname").textContent=L.name+" under the line";
+    $("hwhere").textContent="Strongest at "+fmtLat(f.best.lat)+", over "+placeAt(f.best.lat,lon)+". That is "+ratioText(f.r)+" for a single moment."}
+  else{hp.className="pill bn";hp.textContent="Relative level, no health scale";$("hval").textContent=Math.round(f.lvl*100)+" of 100";$("hname").textContent=L.name+" is strongest under the line";
+    $("hwhere").textContent="At "+fmtLat(f.best.lat)+", over "+placeAt(f.best.lat,lon)+". NASA's particle picture has no units, so it cannot be compared with a health guideline."}
+  if(S.playing&&now-lastSay>14000){lastSay=now;say("Line at "+fmtLon(lon)+". "+(top?"Strongest: "+rec.layers[top.i].name+" over "+placeAt(top.best.lat,lon)+", "+(scaleOf(top.i)?levelText(top.i,top.lvl):Math.round(top.lvl*100)+" of 100")+".":"Clear air along the line."))}
+}
+$("play").onclick=function(){setPlay(!S.playing)};
+$("restart").onclick=function(){var was=S.playing;restart();if(!ac)probe();hud(true);if(!was)$("playtxt").textContent="Start the sweep"};
+$("showreport").onclick=function(){showReport(true)};
+$("rot").oninput=function(){S.rot=+this.value;$("rotout").textContent=this.value+" s"};
+$("vol").oninput=function(){$("volout").textContent=this.value;if(master)master.gain.setTargetAtTime(this.value/100,ac.currentTime,.05)};
+var cv=$("gl"),drag=null;
+cv.addEventListener("pointerdown",function(e){if(!ready)return;initAudio();drag={x:e.clientX,lon:S.lon};S.dragging=true;S.solo=-1;try{cv.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});
+cv.addEventListener("pointermove",function(e){if(!drag)return;var r=radiusCss();S.lon=wrap(drag.lon-(e.clientX-drag.x)/r/RAD);hud()});
+["pointerup","pointercancel"].forEach(function(n){cv.addEventListener(n,function(){if(!drag)return;drag=null;S.dragging=false;if(!S.playing)audition(2.5)})});
+cv.addEventListener("keydown",function(e){var k=e.key,d=k==="ArrowRight"||k==="ArrowUp"?1:k==="ArrowLeft"||k==="ArrowDown"?-1:0;if(!d||!ready)return;e.preventDefault();S.solo=-1;S.lon=wrap(S.lon+d*(e.shiftKey?10:2));if(!S.playing)audition(2.5);hud(true)});
+document.addEventListener("keydown",function(e){
+  var tg=e.target.tagName;if(tg==="INPUT"||e.metaKey||e.ctrlKey||e.altKey)return;var k=e.key;
+  if(k===" "&&tg!=="BUTTON"&&tg!=="SUMMARY"){e.preventDefault();setPlay(!S.playing)}
+  else if(k>="1"&&k<="4")toggle(+k-1);
+  else if(k==="r"||k==="R")showReport(true)
+});
+
+/* ---------- WebGL globe ---------- */
+var gl=null,prog=null,U={},dpr=1,onAmt=[1,1,1,1];
+var VS="attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}";
+var FS=[
+"precision highp float;",
+"uniform vec2 uC;uniform float uR,uLon,uTilt,uTime,uGam;uniform vec2 uMark;",
+"uniform sampler2D uDay,uA,uB,uSurf;uniform vec3 uCol[4];uniform float uOn[4];uniform vec3 uDot[12];uniform vec3 uDotCol[12];",
+"const float PI=3.14159265;const vec3 NEEDLE=vec3(1.,.86,.62);",
+"float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
+"void main(){",
+" vec3 SUN=normalize(vec3(-.50,.34,.80));",
+" vec2 p=(gl_FragCoord.xy-uC)/uR;float r2=dot(p,p);float r=sqrt(r2);",
+" vec2 g=floor(gl_FragCoord.xy/2.);float h=hash(g);",
+" vec3 col=vec3(.003,.005,.010)+step(.9985,h)*(.15+.85*hash(g+3.))*(.8+.2*sin(uTime*1.1+h*80.))*vec3(.86,.9,1.);",
+" float ct=cos(uTilt),st=sin(uTilt);float core=exp(-abs(p.x)*uR/1.2);",
+" if(r2<1.){",
+"  float z=sqrt(1.-r2);vec3 n=vec3(p,z);",
+"  float sy=p.y*ct+z*st;float zz=z*ct-p.y*st;",
+"  vec2 uv=vec2((uLon+atan(p.x,zz))/(2.*PI)+.5,.5-asin(clamp(sy,-1.,1.))/PI);",
+"  vec3 day=texture2D(uDay,uv).rgb;vec3 sf=texture2D(uSurf,uv).rgb;float land=sf.g;",
+"  float e=1./1400.;",
+"  float hx=texture2D(uSurf,uv+vec2(e,0.)).r-texture2D(uSurf,uv-vec2(e,0.)).r;",
+"  float hy=texture2D(uSurf,uv+vec2(0.,e*2.)).r-texture2D(uSurf,uv-vec2(0.,e*2.)).r;",
+"  vec3 axis=vec3(0.,ct,st);vec3 east=normalize(cross(axis,n)+vec3(1e-4,0.,0.));vec3 north=cross(n,east);",
+"  vec3 N=normalize(n-3.2*(hx*east-hy*north));",
+"  float difS=max(dot(n,SUN),0.);float dif=max(dot(N,SUN),0.);",
+"  float light=.16+1.02*pow(mix(difS,dif,.55),.85);",
+"  day=mix(day*vec3(.42,.52,.74),day,land);",
+"  vec3 surf=day*light;",
+"  vec3 hv=normalize(SUN+vec3(0.,0.,1.));surf+=vec3(1.,.95,.86)*pow(max(dot(N,hv),0.),90.)*(1.-land)*.5;",
+"  col=surf;",
+"  vec4 v=vec4(texture2D(uA,uv).rgb,texture2D(uB,uv).r);float near=exp(-abs(p.x)*7.);",
+"  for(int i=0;i<4;i++){float a=pow(max(v[i]-.02,0.),uGam)*uOn[i];vec3 c=uCol[i]*(.30+.80*difS)+uCol[i]*near*a*.45;col=mix(col,c,clamp(a*.92,0.,.9));}",
+"  float fr=pow(1.-z,2.4);col=mix(col,vec3(.40,.64,1.)*(.18+1.0*difS),fr*.8);",
+"  col+=NEEDLE*core*.5;",
+" }else{",
+"  float d=r-1.;float lit=clamp(.30+.9*dot(vec3(p/r,0.),SUN)+.35,0.12,1.3);",
+"  col+=(vec3(.36,.62,1.)*exp(-d*42.)*.6+vec3(.16,.36,.9)*exp(-d*10.)*.06)*lit;",
+"  if(abs(p.y)<1.085)col+=NEEDLE*core*.5;",
+"  col+=NEEDLE*exp(-length(vec2(p.x,abs(p.y)-1.085))*uR/3.)*.7;",
+" }",
+" for(int i=0;i<12;i++){vec3 d=uDot[i];if(d.z>0.){float sl=sin(d.x),cl=cos(d.x);float zf=cl*ct+sl*st;",
+"  if(zf>0.){float dd=length(p-vec2(0.,sl*ct-cl*st))*uR;float rad=3.+6.*d.z;col+=mix(uDotCol[i],vec3(1.),.35)*(smoothstep(rad,rad-1.5,dd)*.9+exp(-dd/(rad*1.5))*.4*d.z);}}}",
+" if(uMark.y>0.){float sl=sin(uMark.x),cl=cos(uMark.x);float dd=length(p-vec2(0.,sl*ct-cl*st))*uR;float rr=16.+6.*sin(uTime*5.);col+=NEEDLE*smoothstep(2.,0.,abs(dd-rr))*uMark.y;}",
+" gl_FragColor=vec4(clamp(col*1.04,0.,1.),1.);",
+"}"].join("\n");
+function initGL(){
+  try{gl=cv.getContext("webgl",{antialias:false,alpha:false})||cv.getContext("experimental-webgl")}catch(e){gl=null}
+  if(!gl)return false;
+  function sh(type,src){var s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){console.error(gl.getShaderInfoLog(s));return null}return s}
+  var v=sh(gl.VERTEX_SHADER,VS),f=sh(gl.FRAGMENT_SHADER,FS);if(!v||!f){gl=null;return false}
+  prog=gl.createProgram();gl.attachShader(prog,v);gl.attachShader(prog,f);gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS)){gl=null;return false}
+  gl.useProgram(prog);var buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  var loc=gl.getAttribLocation(prog,"a");gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  ["uC","uR","uLon","uTilt","uTime","uGam","uMark","uDay","uA","uB","uSurf","uCol","uOn","uDot","uDotCol"].forEach(function(n){U[n]=gl.getUniformLocation(prog,n)});
+  gl.uniform1i(U.uDay,0);gl.uniform1i(U.uA,1);gl.uniform1i(U.uB,2);gl.uniform1i(U.uSurf,3);return true
+}
+function makeTex(img,mip){var t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL,gl.NONE);
+  var max=gl.getParameter(gl.MAX_TEXTURE_SIZE);if(img.width>max){var c=document.createElement("canvas");c.width=max;c.height=max/2;c.getContext("2d").drawImage(img,0,0,c.width,c.height);img=c}
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  if(mip){gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);var ex=gl.getExtension("EXT_texture_filter_anisotropic");if(ex)gl.texParameterf(gl.TEXTURE_2D,ex.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(8,gl.getParameter(ex.MAX_TEXTURE_MAX_ANISOTROPY_EXT)))}
+  else gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t}
+function bindTextures(){if(!gl||!tex.day)return;gl.activeTexture(gl.TEXTURE3);gl.bindTexture(gl.TEXTURE_2D,tex.surf);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex.day);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,tex[rec.id+"_1"]);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,tex[rec.id+"_2"])}
+function radiusCss(){var b=cv.getBoundingClientRect();return Math.min(b.width,b.height)*.43}
+function resize(){var b=cv.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2);var w=Math.max(2,Math.round(b.width*dpr)),h=Math.max(2,Math.round(b.height*dpr));if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;if(gl)gl.viewport(0,0,w,h)}}
+var dotBuf=new Float32Array(36),dotCol=new Float32Array(36),colBuf=new Float32Array(12),t0=performance.now();
+function frame(){
+  requestAnimationFrame(frame);if(!ready)return;
+  var now=ac?ac.currentTime:0,q=null,lon=S.lon,i;
+  if(ac){for(i=vq.length-1;i>=0;i--)if(vq[i].t<=now){q=vq[i];break}}
+  if(q&&S.playing&&!S.dragging&&!still)lon=wrap(q.lon-(now-q.t)*360/S.rot);
+  hud();
+  if(!gl){var f=rec.bands?(wrap(lon)+180)/320:(wrap(lon)+180)/360;$("flatline").style.left=(Math.min(1,f)*100)+"%";return}
+  resize();
+  for(i=0;i<4;i++){var ok=rec.bands?1:1,want=S.on[i]?(S.solo>=0&&S.solo!==i?.25:1):rec.exclusive?0:.12;onAmt[i]+=(want-onAmt[i])*.15;var c=rec.layers[i].col;colBuf[i*3]=c[0];colBuf[i*3+1]=c[1];colBuf[i*3+2]=c[2]}
+  dotBuf.fill(0);if(q&&q.run)q.dots.slice(0,12).forEach(function(d,j){dotBuf[j*3]=d.lat*RAD;dotBuf[j*3+2]=Math.max(.15,d.v);var c=rec.layers[d.li].col;dotCol[j*3]=c[0];dotCol[j*3+1]=c[1];dotCol[j*3+2]=c[2]});
+  var mk=S.mark&&performance.now()<S.mark.until?S.mark:null;
+  gl.uniform2f(U.uC,cv.width/2,cv.height/2);gl.uniform1f(U.uR,Math.min(cv.width,cv.height)*.43);gl.uniform1f(U.uLon,lon*RAD);gl.uniform1f(U.uTilt,TILT);
+  gl.uniform1f(U.uTime,still?0:(performance.now()-t0)/1000);gl.uniform1f(U.uGam,rec.exclusive?(rec.layers[Math.max(0,S.on.indexOf(true))].gam||1):.8);gl.uniform2f(U.uMark,mk?mk.lat*RAD:0,mk?1:0);
+  gl.uniform3fv(U.uCol,colBuf);gl.uniform1fv(U.uOn,new Float32Array(onAmt.map(function(v,i){return v*(rec.layers[i].hazard?1:.6)})));gl.uniform3fv(U.uDot,dotBuf);gl.uniform3fv(U.uDotCol,dotCol);
+  gl.drawArrays(gl.TRIANGLES,0,3)
+}
+
+/* ---------- loading ---------- */
+function load(src){return new Promise(function(res,rej){var im=new Image();im.onload=function(){res(im)};im.onerror=function(){rej(new Error(src))};im.src=src})}
+function pixels(im,w,h){var c=document.createElement("canvas");c.width=w;c.height=h;var x=c.getContext("2d");x.imageSmoothingEnabled=false;x.drawImage(im,0,0);return x.getImageData(0,0,w,h).data}
+function boot(){
+  buildUI();renderReport();var hasGL=initGL();if(!hasGL){$("gl").style.opacity=0;$("fallback").hidden=false;$("status").textContent="3D view unavailable in this browser. Sound, controls and report still work."}
+  var names=["earth_day.jpg","ids.png","aerosols_1.jpg","aerosols_2.jpg","aerosols_grid.png","airquality_1.jpg","airquality_2.jpg","airquality_grid.png","earth_surf.jpg"];
+  Promise.all(names.map(function(n){return load("assets/"+n)})).then(function(im){
+    ids=pixels(im[1],720,360);
+    [["aerosols",4],["airquality",7]].forEach(function(r){var d=pixels(im[r[1]],360,360),g=[0,1,2,3].map(function(){return new Float32Array(64800)});
+      for(var i=0;i<64800;i++){g[0][i]=d[i*4]/255;g[1][i]=d[i*4+1]/255;g[2][i]=d[i*4+2]/255;g[3][i]=d[(64800+i)*4]/255}grids[r[0]]=g});
+    if(gl){tex.day=makeTex(im[0],true);tex.surf=makeTex(im[8],true);tex.aerosols_1=makeTex(im[2]);tex.aerosols_2=makeTex(im[3]);tex.airquality_1=makeTex(im[5]);tex.airquality_2=makeTex(im[6]);bindTextures()}
+    ready=true;if(hasGL)$("status").textContent="Press Start, or drag the Earth to listen to any longitude.";
+    probe();hud(true)
+  }).catch(function(e){$("status").textContent="A data file failed to load ("+e.message+"). Reload the page to try again."});
+  requestAnimationFrame(frame)
+}
+window.__airsweep={S:S,peaks:peaks,place:placeAt,get T(){return T},get vq(){return vq}};
+boot();
+})();
+</script>
+</body>
+</html>
