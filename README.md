@@ -94,7 +94,7 @@ JavaScript, HTML and CSS with no frameworks. WebGL (custom fragment shader) for 
 
 ## Use of AI
 
-This project was built with **Claude**, an AI model made by Anthropic, directed by the project author.
+This project was built with **Claude**, an AI model made by Anthropic, directed by mjt.
 
 - **AI-generated:** the application code, the sound design (all sound is synthesized live by that code; no AI audio generator was used), the data-processing scripts, the text in the app, the logo icon and this README.
 - **Not AI-generated:** the air data and maps (NASA), the Earth surface image (Solar System Scope), borders and place names (Natural Earth), and the health guidance (WHO, US EPA).
